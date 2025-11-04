@@ -1,0 +1,282 @@
+[2025-10-28T18:39:19.140Z] Test timeout: 30000ms
+[2025-10-28T18:39:19.140Z] Setting up test environment...
+[2025-10-28T18:39:19.140Z] Log file: test-kanban-create-hanging.log
+[2025-10-28T18:39:19.138Z] 🔍 Starting Kanban Create Hanging Bug Diagnosis
+[2025-10-28T18:39:19.189Z] Test environment setup complete
+[2025-10-28T18:39:19.190Z] 
+🧪 Testing: Test Task Basic
+[2025-10-28T18:39:19.190Z] ==================================================
+[2025-10-28T18:39:19.190Z] Starting: pnpm kanban create "Test Task Basic"
+[2025-10-28T18:39:21.196Z] ⏱️  Elapsed: 2005ms | Last output: 2005ms ago
+[2025-10-28T18:39:23.198Z] ⏱️  Elapsed: 4007ms | Last output: 4007ms ago
+[2025-10-28T18:39:25.200Z] ⚠️  No output for 6009ms - potential hang detected
+[2025-10-28T18:39:25.201Z] ⏱️  Elapsed: 6009ms | Last output: 6009ms ago
+[2025-10-28T18:39:27.202Z] ⚠️  No output for 8011ms - potential hang detected
+[2025-10-28T18:39:27.203Z] ⏱️  Elapsed: 8011ms | Last output: 8011ms ago
+[2025-10-28T18:39:29.205Z] ⚠️  No output for 10014ms - potential hang detected
+[2025-10-28T18:39:29.206Z] ⏱️  Elapsed: 10014ms | Last output: 10014ms ago
+[2025-10-28T18:39:31.207Z] ⚠️  No output for 12016ms - potential hang detected
+[2025-10-28T18:39:31.207Z] ⏱️  Elapsed: 12016ms | Last output: 12016ms ago
+[2025-10-28T18:39:33.209Z] ⚠️  No output for 14018ms - potential hang detected
+[2025-10-28T18:39:33.210Z] ⏱️  Elapsed: 14018ms | Last output: 14018ms ago
+[2025-10-28T18:39:35.211Z] ⚠️  No output for 16020ms - potential hang detected
+[2025-10-28T18:39:35.212Z] ⏱️  Elapsed: 16020ms | Last output: 16020ms ago
+[2025-10-28T18:39:37.213Z] ⚠️  No output for 18022ms - potential hang detected
+[2025-10-28T18:39:37.214Z] ⏱️  Elapsed: 18022ms | Last output: 18022ms ago
+[2025-10-28T18:39:39.215Z] ⚠️  No output for 20024ms - potential hang detected
+[2025-10-28T18:39:39.215Z] ⏱️  Elapsed: 20024ms | Last output: 20024ms ago
+[2025-10-28T18:39:41.217Z] ⚠️  No output for 22026ms - potential hang detected
+[2025-10-28T18:39:41.217Z] ⏱️  Elapsed: 22026ms | Last output: 22026ms ago
+[2025-10-28T18:39:43.220Z] ⚠️  No output for 24029ms - potential hang detected
+[2025-10-28T18:39:43.221Z] ⏱️  Elapsed: 24029ms | Last output: 24029ms ago
+[2025-10-28T18:39:45.222Z] ⚠️  No output for 26031ms - potential hang detected
+[2025-10-28T18:39:45.222Z] ⏱️  Elapsed: 26031ms | Last output: 26031ms ago
+[2025-10-28T18:39:47.224Z] ⚠️  No output for 28033ms - potential hang detected
+[2025-10-28T18:39:47.225Z] ⏱️  Elapsed: 28033ms | Last output: 28033ms ago
+[2025-10-28T18:39:49.226Z] ❌ TEST TIMEOUT after 30035ms
+[2025-10-28T18:39:49.227Z] Time since last output: 30035ms
+[2025-10-28T18:39:49.228Z] Process appears to be hanging!
+[2025-10-28T18:39:49.228Z] 
+=== ANALYSIS ===
+[2025-10-28T18:39:49.228Z] 🔍 HANGING DETECTED!
+[2025-10-28T18:39:49.229Z] Process hung after 30035ms
+[2025-10-28T18:39:49.229Z] Time since last output: 30035ms
+[2025-10-28T18:39:49.229Z] 📍 Likely hanging in: Early initialization or argument parsing
+[2025-10-28T18:39:49.229Z] 
+=== FULL STDOUT ===
+[2025-10-28T18:39:49.229Z] 
+=== FULL STDERR ===
+[2025-10-28T18:39:50.231Z] 
+🧪 Testing: Test Task With Special Characters !@#$%
+[2025-10-28T18:39:50.232Z] ==================================================
+[2025-10-28T18:39:50.232Z] Starting: pnpm kanban create "Test Task With Special Characters !@#$%"
+[2025-10-28T18:39:52.236Z] ⏱️  Elapsed: 2004ms | Last output: 2004ms ago
+[2025-10-28T18:39:54.239Z] ⏱️  Elapsed: 4007ms | Last output: 4007ms ago
+[2025-10-28T18:39:56.243Z] ⚠️  No output for 6011ms - potential hang detected
+[2025-10-28T18:39:56.243Z] ⏱️  Elapsed: 6011ms | Last output: 6011ms ago
+[2025-10-28T18:39:58.244Z] ⚠️  No output for 8012ms - potential hang detected
+[2025-10-28T18:39:58.245Z] ⏱️  Elapsed: 8012ms | Last output: 8012ms ago
+[2025-10-28T18:40:00.247Z] ⏱️  Elapsed: 10014ms | Last output: 10014ms ago
+[2025-10-28T18:40:00.246Z] ⚠️  No output for 10014ms - potential hang detected
+[2025-10-28T18:40:02.248Z] ⚠️  No output for 12016ms - potential hang detected
+[2025-10-28T18:40:02.249Z] ⏱️  Elapsed: 12016ms | Last output: 12016ms ago
+[2025-10-28T18:40:04.250Z] ⚠️  No output for 14018ms - potential hang detected
+[2025-10-28T18:40:04.250Z] ⏱️  Elapsed: 14018ms | Last output: 14018ms ago
+[2025-10-28T18:40:06.252Z] ⚠️  No output for 16020ms - potential hang detected
+[2025-10-28T18:40:06.253Z] ⏱️  Elapsed: 16020ms | Last output: 16020ms ago
+[2025-10-28T18:40:08.254Z] ⚠️  No output for 18022ms - potential hang detected
+[2025-10-28T18:40:08.255Z] ⏱️  Elapsed: 18022ms | Last output: 18022ms ago
+[2025-10-28T18:40:10.256Z] ⚠️  No output for 20024ms - potential hang detected
+[2025-10-28T18:40:10.256Z] ⏱️  Elapsed: 20024ms | Last output: 20024ms ago
+[2025-10-28T18:40:12.258Z] ⚠️  No output for 22026ms - potential hang detected
+[2025-10-28T18:40:12.258Z] ⏱️  Elapsed: 22026ms | Last output: 22026ms ago
+[2025-10-28T18:40:14.260Z] ⚠️  No output for 24028ms - potential hang detected
+[2025-10-28T18:40:14.260Z] ⏱️  Elapsed: 24028ms | Last output: 24028ms ago
+[2025-10-28T18:40:16.262Z] ⚠️  No output for 26030ms - potential hang detected
+[2025-10-28T18:40:16.263Z] ⏱️  Elapsed: 26030ms | Last output: 26030ms ago
+[2025-10-28T18:40:18.264Z] ⚠️  No output for 28032ms - potential hang detected
+[2025-10-28T18:40:18.264Z] ⏱️  Elapsed: 28032ms | Last output: 28032ms ago
+[2025-10-28T19:00:00.873Z] 🔍 Starting Kanban Create Hanging Bug Diagnosis
+[2025-10-28T19:00:00.874Z] Test timeout: 30000ms
+[2025-10-28T19:00:00.874Z] Log file: test-kanban-create-hanging.log
+[2025-10-28T19:00:00.874Z] Setting up test environment...
+[2025-10-28T19:00:00.906Z] Test environment setup complete
+[2025-10-28T19:00:00.907Z] 
+🧪 Testing: Test Task Basic
+[2025-10-28T19:00:00.907Z] ==================================================
+[2025-10-28T19:00:00.907Z] Starting: pnpm kanban create "Test Task Basic"
+[2025-10-28T19:00:02.911Z] ⏱️  Elapsed: 2004ms | Last output: 2004ms ago
+[2025-10-28T19:00:04.913Z] ⏱️  Elapsed: 4006ms | Last output: 4006ms ago
+[2025-10-28T19:00:06.915Z] ⚠️  No output for 6008ms - potential hang detected
+[2025-10-28T19:00:06.916Z] ⏱️  Elapsed: 6008ms | Last output: 6008ms ago
+[2025-10-28T19:00:08.917Z] ⚠️  No output for 8010ms - potential hang detected
+[2025-10-28T19:00:08.917Z] ⏱️  Elapsed: 8010ms | Last output: 8010ms ago
+[2025-10-28T19:00:10.919Z] ⚠️  No output for 10012ms - potential hang detected
+[2025-10-28T19:00:10.919Z] ⏱️  Elapsed: 10012ms | Last output: 10012ms ago
+[2025-10-28T19:00:12.922Z] ⚠️  No output for 12015ms - potential hang detected
+[2025-10-28T19:00:12.922Z] ⏱️  Elapsed: 12015ms | Last output: 12015ms ago
+[2025-10-28T19:00:14.924Z] ⚠️  No output for 14017ms - potential hang detected
+[2025-10-28T19:00:14.924Z] ⏱️  Elapsed: 14017ms | Last output: 14017ms ago
+[2025-10-28T19:00:16.926Z] ⚠️  No output for 16019ms - potential hang detected
+[2025-10-28T19:00:16.926Z] ⏱️  Elapsed: 16019ms | Last output: 16019ms ago
+[2025-10-28T19:00:18.927Z] ⚠️  No output for 18020ms - potential hang detected
+[2025-10-28T19:00:18.927Z] ⏱️  Elapsed: 18020ms | Last output: 18020ms ago
+[2025-10-28T19:00:20.929Z] ⚠️  No output for 20022ms - potential hang detected
+[2025-10-28T19:00:20.929Z] ⏱️  Elapsed: 20022ms | Last output: 20022ms ago
+[2025-10-28T19:00:22.932Z] ⚠️  No output for 22025ms - potential hang detected
+[2025-10-28T19:00:22.932Z] ⏱️  Elapsed: 22025ms | Last output: 22025ms ago
+[2025-10-28T19:00:24.934Z] ⚠️  No output for 24027ms - potential hang detected
+[2025-10-28T19:00:24.934Z] ⏱️  Elapsed: 24027ms | Last output: 24027ms ago
+[2025-10-28T19:00:26.935Z] ⚠️  No output for 26028ms - potential hang detected
+[2025-10-28T19:00:26.935Z] ⏱️  Elapsed: 26028ms | Last output: 26028ms ago
+[2025-10-28T19:00:28.937Z] ⚠️  No output for 28030ms - potential hang detected
+[2025-10-28T19:00:28.937Z] ⏱️  Elapsed: 28030ms | Last output: 28030ms ago
+[2025-10-28T19:00:30.939Z] ❌ TEST TIMEOUT after 30032ms
+[2025-10-28T19:00:30.940Z] Time since last output: 30032ms
+[2025-10-28T19:00:30.940Z] Process appears to be hanging!
+[2025-10-28T19:00:30.940Z] 
+=== ANALYSIS ===
+[2025-10-28T19:00:30.940Z] 🔍 HANGING DETECTED!
+[2025-10-28T19:00:30.941Z] Process hung after 30032ms
+[2025-10-28T19:00:30.941Z] Time since last output: 30032ms
+[2025-10-28T19:00:30.941Z] 📍 Likely hanging in: Early initialization or argument parsing
+[2025-10-28T19:00:30.941Z] 
+=== FULL STDOUT ===
+[2025-10-28T19:00:30.941Z] 
+=== FULL STDERR ===
+[2025-10-28T19:00:31.941Z] 
+🧪 Testing: Test Task With Special Characters !@#$%
+[2025-10-28T19:00:31.941Z] ==================================================
+[2025-10-28T19:00:31.941Z] Starting: pnpm kanban create "Test Task With Special Characters !@#$%"
+[2025-10-28T19:00:33.948Z] ⏱️  Elapsed: 2007ms | Last output: 2007ms ago
+[2025-10-28T19:00:35.950Z] ⏱️  Elapsed: 4009ms | Last output: 4009ms ago
+[2025-10-28T19:00:37.952Z] ⚠️  No output for 6011ms - potential hang detected
+[2025-10-28T19:00:37.952Z] ⏱️  Elapsed: 6011ms | Last output: 6011ms ago
+[2025-10-28T19:00:39.953Z] ⚠️  No output for 8012ms - potential hang detected
+[2025-10-28T19:00:39.953Z] ⏱️  Elapsed: 8012ms | Last output: 8012ms ago
+[2025-10-28T19:00:41.954Z] ⚠️  No output for 10013ms - potential hang detected
+[2025-10-28T19:00:41.954Z] ⏱️  Elapsed: 10013ms | Last output: 10013ms ago
+[2025-10-28T19:00:43.956Z] ⚠️  No output for 12015ms - potential hang detected
+[2025-10-28T19:00:43.956Z] ⏱️  Elapsed: 12015ms | Last output: 12015ms ago
+[2025-10-28T19:40:36.156Z] 🔍 Starting Kanban Create Hanging Bug Diagnosis
+[2025-10-28T19:40:36.158Z] Test timeout: 30000ms
+[2025-10-28T19:40:36.158Z] Setting up test environment...
+[2025-10-28T19:40:36.158Z] Log file: test-kanban-create-hanging.log
+[2025-10-28T19:40:36.203Z] Test environment setup complete
+[2025-10-28T19:40:36.203Z] 
+🧪 Testing: Test Task Basic
+[2025-10-28T19:40:36.203Z] ==================================================
+[2025-10-28T19:40:36.203Z] Starting: pnpm kanban create "Test Task Basic"
+[2025-10-28T19:40:36.999Z] STDERR: [DEBUG] CLI starting...
+[2025-10-28T19:40:37.000Z] STDERR: [DEBUG] Raw args: [ 'create', 'Test Task Basic' ]
+[DEBUG] Normalized args: [ 'create', 'Test Task Basic' ]
+[DEBUG] Help requested: false JSON requested: false
+[DEBUG] Loading kanban config...
+[2025-10-28T19:40:37.003Z] STDERR: [DEBUG] Config loaded successfully
+[2025-10-28T19:40:37.004Z] STDERR: [DEBUG] Filtering args...
+[DEBUG] Filtered args: [ 'create', 'Test Task Basic' ]
+[2025-10-28T19:40:37.004Z] STDERR: [DEBUG] Filtered args: [ 'create', 'Test Task Basic' ]
+[2025-10-28T19:40:37.004Z] STDERR: [DEBUG] About to execute command: create [ 'Test Task Basic' ]
+[2025-10-28T19:40:37.012Z] STDERR: [DEBUG] handleCreate started
+[2025-10-28T19:40:37.012Z] STDERR: [DEBUG] About to parse create task args
+[DEBUG] Parsed task args: { title: 'Test Task Basic' }
+[DEBUG] About to call createTask
+[DEBUG] createTask function started
+[2025-10-28T19:40:37.013Z] STDERR: [DEBUG] createTask params: {
+  column: 'incoming',
+  title: 'Test Task Basic',
+  tasksDir: '/home/err/devel/promethean/docs/agile/tasks',
+  boardPath: '/home/err/devel/promethean/docs/agile/boards/generated.md'
+}
+[DEBUG] UUID generated: 6e3fd57c
+[DEBUG] Processing title...
+[DEBUG] Title processed: Test Task Basic
+[DEBUG] About to validate starting status...
+[DEBUG] Starting status validated
+[DEBUG] About to ensure column...
+[DEBUG] Column ensured: incoming
+[DEBUG] About to read tasks folder...
+[2025-10-28T19:40:37.095Z] STDERR: [DEBUG] Tasks folder read, count: 470
+[2025-10-28T19:40:37.095Z] STDERR: [DEBUG] Starting duplicate detection...
+[DEBUG] Normalized title: test task basic
+[DEBUG] Target column name: incoming
+[DEBUG] About to search for existing task in 470 tasks...
+[DEBUG] Search completed, found: NO
+[DEBUG] About to search board column with 211 tasks...
+[2025-10-28T19:40:37.096Z] STDERR: [DEBUG] Board search completed, found: NO
+[DEBUG] About to build board index...
+[DEBUG] Building index from 16 columns...
+[2025-10-28T19:40:37.096Z] STDERR: [DEBUG] Board index built with 467 entries
+[2025-10-28T19:40:38.206Z] ⏱️  Elapsed: 2003ms | Last output: 1110ms ago
+[2025-10-28T19:40:40.209Z] ⏱️  Elapsed: 4006ms | Last output: 3113ms ago
+[2025-10-28T19:40:42.210Z] ⚠️  No output for 5114ms - potential hang detected
+[2025-10-28T19:40:42.210Z] ⏱️  Elapsed: 6007ms | Last output: 5114ms ago
+[2025-10-28T19:40:44.212Z] ⚠️  No output for 7116ms - potential hang detected
+[2025-10-28T19:40:44.212Z] ⏱️  Elapsed: 8009ms | Last output: 7116ms ago
+[2025-10-28T19:40:46.214Z] ⚠️  No output for 9118ms - potential hang detected
+[2025-10-28T19:40:46.214Z] ⏱️  Elapsed: 10011ms | Last output: 9118ms ago
+[2025-10-28T19:40:48.216Z] ⚠️  No output for 11120ms - potential hang detected
+[2025-10-28T19:40:48.216Z] ⏱️  Elapsed: 12013ms | Last output: 11120ms ago
+[2025-10-28T19:40:50.217Z] ⚠️  No output for 13121ms - potential hang detected
+[2025-10-28T19:40:50.217Z] ⏱️  Elapsed: 14014ms | Last output: 13121ms ago
+[2025-10-28T19:40:52.219Z] ⚠️  No output for 15123ms - potential hang detected
+[2025-10-28T19:40:52.219Z] ⏱️  Elapsed: 16016ms | Last output: 15123ms ago
+[2025-10-28T19:40:54.221Z] ⚠️  No output for 17125ms - potential hang detected
+[2025-10-28T19:40:54.221Z] ⏱️  Elapsed: 18018ms | Last output: 17125ms ago
+[2025-10-28T19:40:56.224Z] ⚠️  No output for 19128ms - potential hang detected
+[2025-10-28T19:40:56.224Z] ⏱️  Elapsed: 20021ms | Last output: 19128ms ago
+[2025-10-28T19:40:58.225Z] ⚠️  No output for 21129ms - potential hang detected
+[2025-10-28T19:40:58.225Z] ⏱️  Elapsed: 22022ms | Last output: 21129ms ago
+[2025-10-28T19:41:00.227Z] ⚠️  No output for 23131ms - potential hang detected
+[2025-10-28T19:41:00.228Z] ⏱️  Elapsed: 24024ms | Last output: 23131ms ago
+[2025-10-28T19:41:02.229Z] ⚠️  No output for 25133ms - potential hang detected
+[2025-10-28T19:41:02.229Z] ⏱️  Elapsed: 26026ms | Last output: 25133ms ago
+[2025-10-28T19:41:04.231Z] ⚠️  No output for 27135ms - potential hang detected
+[2025-10-28T19:41:04.231Z] ⏱️  Elapsed: 28028ms | Last output: 27135ms ago
+[2025-10-28T19:41:06.233Z] ❌ TEST TIMEOUT after 30030ms
+[2025-10-28T19:41:06.233Z] Time since last output: 29137ms
+[2025-10-28T19:41:06.233Z] Process appears to be hanging!
+[2025-10-28T19:41:06.234Z] 
+=== ANALYSIS ===
+[2025-10-28T19:41:06.234Z] 🔍 HANGING DETECTED!
+[2025-10-28T19:41:06.234Z] Process hung after 30030ms
+[2025-10-28T19:41:06.234Z] Time since last output: 29137ms
+[2025-10-28T19:41:06.234Z] 📍 Likely hanging in: Early initialization or argument parsing
+[2025-10-28T19:41:06.234Z] 
+=== FULL STDOUT ===
+[2025-10-28T19:41:06.234Z] 
+=== FULL STDERR ===
+[2025-10-28T19:41:07.235Z] 
+🧪 Testing: Test Task With Special Characters !@#$%
+[2025-10-28T19:41:07.235Z] ==================================================
+[2025-10-28T19:41:07.235Z] Starting: pnpm kanban create "Test Task With Special Characters !@#$%"
+[2025-10-28T19:41:08.034Z] STDERR: [DEBUG] CLI starting...
+[2025-10-28T19:41:08.034Z] STDERR: [DEBUG] Raw args: [ 'create', 'Test Task With Special Characters !@#$%' ]
+[2025-10-28T19:41:08.034Z] STDERR: [DEBUG] Normalized args: [ 'create', 'Test Task With Special Characters !@#$%' ]
+[DEBUG] Help requested: false JSON requested: false
+[2025-10-28T19:41:08.034Z] STDERR: [DEBUG] Loading kanban config...
+[2025-10-28T19:41:08.038Z] STDERR: [DEBUG] Config loaded successfully
+[2025-10-28T19:41:08.038Z] STDERR: [DEBUG] Filtering args...
+[2025-10-28T19:41:08.038Z] STDERR: [DEBUG] Filtered args: [ 'create', 'Test Task With Special Characters !@#$%' ]
+[2025-10-28T19:41:08.038Z] STDERR: [DEBUG] Filtered args: [ 'create', 'Test Task With Special Characters !@#$%' ]
+[2025-10-28T19:41:08.038Z] STDERR: [DEBUG] About to execute command: create [ 'Test Task With Special Characters !@#$%' ]
+[2025-10-28T19:41:08.046Z] STDERR: [DEBUG] handleCreate started
+[2025-10-28T19:41:08.046Z] STDERR: [DEBUG] About to parse create task args
+[DEBUG] Parsed task args: { title: 'Test Task With Special Characters !@#$%' }
+[2025-10-28T19:41:08.046Z] STDERR: [DEBUG] About to call createTask
+[2025-10-28T19:41:08.046Z] STDERR: [DEBUG] createTask function started
+[2025-10-28T19:41:08.046Z] STDERR: [DEBUG] createTask params: {
+  column: 'incoming',
+  title: 'Test Task With Special Characters !@#$%',
+  tasksDir: '/home/err/devel/promethean/docs/agile/tasks',
+  boardPath: '/home/err/devel/promethean/docs/agile/boards/generated.md'
+}
+[2025-10-28T19:41:08.046Z] STDERR: [DEBUG] UUID generated: d2c3b4c5
+[DEBUG] Processing title...
+[DEBUG] Title processed: Test Task With Special Characters !@#$%
+[DEBUG] About to validate starting status...
+[2025-10-28T19:41:08.046Z] STDERR: [DEBUG] Starting status validated
+[DEBUG] About to ensure column...
+[2025-10-28T19:41:08.046Z] STDERR: [DEBUG] Column ensured: incoming
+[DEBUG] About to read tasks folder...
+[2025-10-28T19:41:08.137Z] STDERR: [DEBUG] Tasks folder read, count: 470
+[2025-10-28T19:41:08.137Z] STDERR: [DEBUG] Starting duplicate detection...
+[DEBUG] Normalized title: test task with special characters !@#$%
+[DEBUG] Target column name: incoming
+[DEBUG] About to search for existing task in 470 tasks...
+[2025-10-28T19:41:08.137Z] STDERR: [DEBUG] Search completed, found: NO
+[DEBUG] About to search board column with 211 tasks...
+[2025-10-28T19:41:08.137Z] STDERR: [DEBUG] Board search completed, found: NO
+[DEBUG] About to build board index...
+[DEBUG] Building index from 16 columns...
+[2025-10-28T19:41:08.137Z] STDERR: [DEBUG] Board index built with 467 entries
+[2025-10-28T19:41:09.239Z] ⏱️  Elapsed: 2004ms | Last output: 1102ms ago
+[2025-10-28T19:41:11.241Z] ⏱️  Elapsed: 4006ms | Last output: 3104ms ago
+[2025-10-28T19:41:13.244Z] ⚠️  No output for 5107ms - potential hang detected
+[2025-10-28T19:41:13.244Z] ⏱️  Elapsed: 6009ms | Last output: 5107ms ago
+[2025-10-28T19:41:15.245Z] ⚠️  No output for 7108ms - potential hang detected
+[2025-10-28T19:41:15.245Z] ⏱️  Elapsed: 8010ms | Last output: 7108ms ago
+[2025-10-28T19:41:17.247Z] ⚠️  No output for 9110ms - potential hang detected
+[2025-10-28T19:41:17.247Z] ⏱️  Elapsed: 10012ms | Last output: 9110ms ago
+[2025-10-28T19:41:19.249Z] ⚠️  No output for 11112ms - potential hang detected
+[2025-10-28T19:41:19.249Z] ⏱️  Elapsed: 12014ms | Last output: 11112ms ago
