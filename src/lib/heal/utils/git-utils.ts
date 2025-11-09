@@ -309,7 +309,7 @@ export class GitUtils {
         maxBuffer: 50 * 1024 * 1024, // 50MB buffer
       });
     } catch (error) {
-      if (stdio === 'ignore') {
+      if (options.stdio === 'ignore') {
         throw error;
       }
       throw new Error(`Git command failed: git ${command} - ${error instanceof Error ? error.message : String(error)}`);

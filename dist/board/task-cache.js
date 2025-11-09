@@ -1,4 +1,4 @@
-import { openLmdbCache } from "@promethean-os/lmdb-cache";
+import { LMDBCache } from "@promethean-os/lmdb-cache";
 /**
  * Internal cache key generators
  */
@@ -27,11 +27,7 @@ export class LmdbTaskCache {
      */
     static async create(options) {
         // Create single cache with multiple namespaces to avoid connection conflicts
-        const baseCache = await openLmdbCache({
-            path: options.path,
-            namespace: options.namespace || 'kanban',
-            defaultTtlMs: options.defaultTtlMs,
-        });
+        const baseCache = await new LMDBCache(options.path, {});
         // Create namespaced instances from the same base cache
         const tasksCache = baseCache.withNamespace('tasks');
         const indexesCache = baseCache.withNamespace('indexes');

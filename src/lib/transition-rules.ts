@@ -146,7 +146,6 @@ export class TransitionRulesEngine {
 
   // Private helper methods (deprecated - use functional versions instead)
 
-  // @ts-expect-error - Part of deprecated API
   private normalizeColumnName(_column: string): string {
     console.warn(
       'TransitionRulesEngine.normalizeColumnName is deprecated. Use normalizeColumnName from transition-rules-functional instead.',
@@ -154,7 +153,6 @@ export class TransitionRulesEngine {
     return normalizeColumnName(_column);
   }
 
-  // @ts-expect-error - Part of deprecated API
   private findTransitionRule(_from: string, _to: string): TransitionRule | undefined {
     console.warn(
       'TransitionRulesEngine.findTransitionRule is deprecated. Use findTransitionRule from transition-rules-functional instead.',
@@ -162,7 +160,6 @@ export class TransitionRulesEngine {
     return findTransitionRule(this.state.config, _from, _to);
   }
 
-  // @ts-expect-error - Part of deprecated API
   private isBackwardTransition(_from: string, _to: string): boolean {
     console.warn(
       'TransitionRulesEngine.isBackwardTransition is deprecated. Use isBackwardTransition from transition-rules-functional instead.',
@@ -170,7 +167,6 @@ export class TransitionRulesEngine {
     return isBackwardTransition(_from, _to);
   }
 
-  // @ts-expect-error - Part of deprecated API
   private async evaluateGlobalRule(
     _rule: GlobalRule,
     _from: string,
@@ -184,7 +180,6 @@ export class TransitionRulesEngine {
     return evaluateGlobalRuleFn(this.state, _rule, _from, _to, _task, _board);
   }
 
-  // @ts-expect-error - Part of deprecated API
   private async evaluateWipLimit(_targetColumn: string, _board: Board): Promise<boolean> {
     console.warn(
       'TransitionRulesEngine.evaluateWipLimit is deprecated. Use evaluateWipLimit from transition-rules-functional instead.',
@@ -192,7 +187,6 @@ export class TransitionRulesEngine {
     return evaluateWipLimit(_targetColumn, _board);
   }
 
-  // @ts-expect-error - Part of deprecated API
   private evaluateTaskExistence(_sourceColumn: string, _task: Task, _board: Board): boolean {
     console.warn(
       'TransitionRulesEngine.evaluateTaskExistence is deprecated. Use evaluateTaskExistence from transition-rules-functional instead.',
@@ -200,7 +194,6 @@ export class TransitionRulesEngine {
     return evaluateTaskExistence(_sourceColumn, _task, _board);
   }
 
-  // @ts-expect-error - Part of deprecated API
   private async evaluateCustomCheck(
     _checkName: string,
     _task: Task,
@@ -212,7 +205,6 @@ export class TransitionRulesEngine {
     return evaluateCustomCheckFn(this.state, _checkName, _task, _board);
   }
 
-  // @ts-expect-error - Part of deprecated API
   private async evaluateCustomRule(
     _ruleImpl: string,
     __args: any[],
@@ -225,7 +217,6 @@ export class TransitionRulesEngine {
     return evaluateCustomRuleFn(this.state, _ruleImpl, __args, _task, _board);
   }
 
-  // @ts-expect-error - Part of deprecated API
   private async validateTestingToReviewTransition(
     _task: Task,
     _board: Board,
@@ -236,7 +227,6 @@ export class TransitionRulesEngine {
     return validateTestingToReviewTransitionFn(this.state, _task, _board);
   }
 
-  // @ts-expect-error - Part of deprecated API
   private extractTestingInfo(_task: Task): {
     coverageReportPath?: string;
     executedTests?: string[];

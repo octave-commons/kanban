@@ -1,5 +1,5 @@
 import type { IndexedTask } from "./types.js";
-import { openLmdbCache, type Cache } from "@promethean-os/lmdb-cache";
+import { LMDBCache, type Cache } from "@promethean-os/lmdb-cache";
 
 /**
  * TaskCache interface for efficient task storage and retrieval
@@ -76,10 +76,7 @@ export class LmdbTaskCache implements TaskCache {
    */
   static async create(options: TaskCacheOptions): Promise<LmdbTaskCache> {
     // Create single cache with multiple namespaces to avoid connection conflicts
-    const baseCache = await openLmdbCache<any>({
-      path: options.path,
-      namespace: options.namespace || 'kanban',
-      defaultTtlMs: options.defaultTtlMs,
+    const baseCache = await new LMDBCache<any>(options.path, {
     });
 
     // Create namespaced instances from the same base cache

@@ -2,8 +2,9 @@
  * Git Workflow Core Implementation for Heal Command
  * Orchestrates pre-operation and post-operation Git workflows for healing operations
  */
-import type { ScarContext, Task, GitState } from './scar-context-types.js';
-import { type GitOperationResult } from './utils/git-utils.js';
+import type { ScarContext } from './scar-context-types.js';
+import type { Task } from '../testing-transition/types.js';
+import { type GitOperationResult, type GitState } from './utils/git-utils.js';
 /**
  * Git workflow configuration options
  */
@@ -89,7 +90,7 @@ export declare class GitWorkflow {
     /**
      * Commit tasks directory changes
      */
-    commitTasksDirectory(context: ScarContext): Promise<GitOperationResult>;
+    commitTasksDirectory(_context: ScarContext): Promise<GitOperationResult>;
     /**
      * Commit kanban board changes
      */
@@ -97,7 +98,7 @@ export declare class GitWorkflow {
     /**
      * Commit dependency changes
      */
-    commitDependencies(context: ScarContext): Promise<GitOperationResult>;
+    commitDependencies(_context: ScarContext): Promise<GitOperationResult>;
     /**
      * Create pre-op tag
      */

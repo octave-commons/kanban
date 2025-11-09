@@ -225,7 +225,7 @@ export class GitWorkflow {
     /**
      * Commit tasks directory changes
      */
-    async commitTasksDirectory(context) {
+    async commitTasksDirectory(_context) {
         try {
             // Add tasks directory files
             const addResult = await this.gitUtils.addFiles(['docs/agile/tasks/']);
@@ -281,7 +281,7 @@ export class GitWorkflow {
     /**
      * Commit dependency changes
      */
-    async commitDependencies(context) {
+    async commitDependencies(_context) {
         try {
             // Add dependency files
             const depFiles = [

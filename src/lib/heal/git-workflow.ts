@@ -3,9 +3,9 @@
  * Orchestrates pre-operation and post-operation Git workflows for healing operations
  */
 
-import type { ScarContext, HealingResult } from './scar-context-types.js';
+import type { ScarContext } from './scar-context-types.js';
 import type { Task } from '../testing-transition/types.js';
-import { GitUtils, type GitOperationResult } from './utils/git-utils.js';
+import { GitUtils, type GitOperationResult, type GitState } from './utils/git-utils.js';
 import { CommitMessageGenerator } from './utils/commit-message-generator.js';
 import { ScarFileManager } from './scar-file-manager.js';
 import { GitTagManager } from './git-tag-manager.js';
@@ -331,7 +331,7 @@ export class GitWorkflow {
   /**
    * Commit tasks directory changes
    */
-  async commitTasksDirectory(context: ScarContext): Promise<GitOperationResult> {
+  async commitTasksDirectory(_context: ScarContext): Promise<GitOperationResult> {
     try {
       // Add tasks directory files
       const addResult = await this.gitUtils.addFiles(['docs/agile/tasks/']);
@@ -392,7 +392,7 @@ export class GitWorkflow {
   /**
    * Commit dependency changes
    */
-  async commitDependencies(context: ScarContext): Promise<GitOperationResult> {
+  async commitDependencies(_context: ScarContext): Promise<GitOperationResult> {
     try {
       // Add dependency files
       const depFiles = [

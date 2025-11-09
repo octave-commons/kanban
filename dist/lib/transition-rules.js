@@ -75,52 +75,42 @@ export class TransitionRulesEngine {
         return getTransitionsOverviewFn(this.state);
     }
     // Private helper methods (deprecated - use functional versions instead)
-    // @ts-expect-error - Part of deprecated API
     normalizeColumnName(_column) {
         console.warn('TransitionRulesEngine.normalizeColumnName is deprecated. Use normalizeColumnName from transition-rules-functional instead.');
         return normalizeColumnName(_column);
     }
-    // @ts-expect-error - Part of deprecated API
     findTransitionRule(_from, _to) {
         console.warn('TransitionRulesEngine.findTransitionRule is deprecated. Use findTransitionRule from transition-rules-functional instead.');
         return findTransitionRule(this.state.config, _from, _to);
     }
-    // @ts-expect-error - Part of deprecated API
     isBackwardTransition(_from, _to) {
         console.warn('TransitionRulesEngine.isBackwardTransition is deprecated. Use isBackwardTransition from transition-rules-functional instead.');
         return isBackwardTransition(_from, _to);
     }
-    // @ts-expect-error - Part of deprecated API
     async evaluateGlobalRule(_rule, _from, _to, _task, _board) {
         console.warn('TransitionRulesEngine.evaluateGlobalRule is deprecated. Use evaluateGlobalRule from transition-rules-functional instead.');
         return evaluateGlobalRuleFn(this.state, _rule, _from, _to, _task, _board);
     }
-    // @ts-expect-error - Part of deprecated API
     async evaluateWipLimit(_targetColumn, _board) {
         console.warn('TransitionRulesEngine.evaluateWipLimit is deprecated. Use evaluateWipLimit from transition-rules-functional instead.');
         return evaluateWipLimit(_targetColumn, _board);
     }
-    // @ts-expect-error - Part of deprecated API
     evaluateTaskExistence(_sourceColumn, _task, _board) {
         console.warn('TransitionRulesEngine.evaluateTaskExistence is deprecated. Use evaluateTaskExistence from transition-rules-functional instead.');
         return evaluateTaskExistence(_sourceColumn, _task, _board);
     }
-    // @ts-expect-error - Part of deprecated API
     async evaluateCustomCheck(_checkName, _task, _board) {
         console.warn('TransitionRulesEngine.evaluateCustomCheck is deprecated. Use evaluateCustomCheck from transition-rules-functional instead.');
         return evaluateCustomCheckFn(this.state, _checkName, _task, _board);
     }
-    // @ts-expect-error - Part of deprecated API
     async evaluateCustomRule(_ruleImpl, __args, _task, _board) {
         console.warn('TransitionRulesEngine.evaluateCustomRule is deprecated. Use evaluateCustomRule from transition-rules-functional instead.');
         return evaluateCustomRuleFn(this.state, _ruleImpl, __args, _task, _board);
     }
-    // @ts-expect-error - Part of deprecated API
     async validateTestingToReviewTransition(_task, _board) {
         console.warn('TransitionRulesEngine.validateTestingToReviewTransition is deprecated. Use validateTestingToReviewTransition from transition-rules-functional instead.');
         return validateTestingToReviewTransitionFn(this.state, _task, _board);
     }
-    // @ts-expect-error - Part of deprecated API
     extractTestingInfo(_task) {
         console.warn('TransitionRulesEngine.extractTestingInfo is deprecated. Use extractTestingInfo from transition-rules-functional instead.');
         return extractTestingInfoFn(_task);

@@ -49,7 +49,7 @@
     "kanban": "dist/cli.js"
   },
   "scripts": {
-    "build": "tsc -b tsconfig.json --force",
+    "build": "tsc -b tsconfig.build.json --force",
     "build:cljs": "shadow-cljs release kanban-frontend",
     "build:docs": "typedoc --options typedoc.json",
     "dev:cljs": "shadow-cljs watch kanban-frontend",

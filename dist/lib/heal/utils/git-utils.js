@@ -260,7 +260,7 @@ export class GitUtils {
             });
         }
         catch (error) {
-            if (stdio === 'ignore') {
+            if (options.stdio === 'ignore') {
                 throw error;
             }
             throw new Error(`Git command failed: git ${command} - ${error instanceof Error ? error.message : String(error)}`);
