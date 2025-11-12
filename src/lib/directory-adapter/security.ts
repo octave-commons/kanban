@@ -30,7 +30,13 @@ export const DEFAULT_SECURITY_OPTIONS: SecurityOptions = {
  * Comprehensive security validator implementation
  */
 export class TaskSecurityValidator implements SecurityValidator {
-  constructor(private readonly options: SecurityOptions = DEFAULT_SECURITY_OPTIONS) {}
+  private readonly options: SecurityOptions;
+  private readonly allowedExtensions: string[];
+
+  constructor(options: SecurityOptions = DEFAULT_SECURITY_OPTIONS) {
+    this.options = options;
+    this.allowedExtensions = options.allowedExtensions.map((ext) => ext.toLowerCase());
+  }
 
   /**
    * Validate file path for security violations
@@ -43,22 +49,27 @@ export class TaskSecurityValidator implements SecurityValidator {
     const warnings: string[] = [];
 
     try {
-      // Normalize the path
       const normalizedPath = path.normalize(filePath);
+      const traversalCandidates = [filePath, normalizedPath];
 
-      // Check for path traversal attempts
       if (!this.options.allowPathTraversal) {
-        if (this.containsPathTraversal(normalizedPath)) {
-          issues.push('Path traversal detected');
+        const hasTraversal = traversalCandidates.some((candidate) =>
+          this.containsPathTraversal(candidate),
+        );
+        if (hasTraversal) {
+          issues.push('path traversal detected');
         }
       }
 
-      // Check for dangerous file extensions
       const ext = path.extname(normalizedPath).toLowerCase();
-      if (!this.options.allowedExtensions.includes(ext)) {
-        issues.push(
-          `File extension '${ext}' not allowed. Allowed: ${this.options.allowedExtensions.join(', ')}`,
-        );
+      if (ext) {
+        if (!this.allowedExtensions.includes(ext)) {
+          issues.push(
+            `File extension '${ext}' not allowed. Allowed: ${this.allowedExtensions.join(', ')}`,
+          );
+        }
+      } else {
+        warnings.push('File has no extension; applying markdown defaults');
       }
 
       // Check for suspicious file names
@@ -150,7 +161,7 @@ export class TaskSecurityValidator implements SecurityValidator {
 
       // Check for binary content (should be text for markdown files)
       if (this.containsBinaryContent(content)) {
-        issues.push('Binary content detected in text file');
+        issues.push('binary content detected in text file');
       }
 
       // Check for encoding issues
@@ -256,15 +267,17 @@ export class TaskSecurityValidator implements SecurityValidator {
         break;
 
       case 'write':
-      case 'create':
-        // Check if directory exists
+      case 'create': {
         const dir = path.dirname(filePath);
-        try {
-          await fs.access(dir);
-        } catch {
-          issues.push(`Directory does not exist: ${dir}`);
+        if (!context.metadata?.baseDirectory) {
+          try {
+            await fs.access(dir);
+          } catch {
+            issues.push(`Directory does not exist: ${dir}`);
+          }
         }
         break;
+      }
 
       case 'move':
         // Prevent moving to system directories
@@ -344,9 +357,9 @@ export class TaskSecurityValidator implements SecurityValidator {
    * Sanitize file path
    */
   sanitizePath(filePath: string): string {
-    // Remove dangerous characters
-    return filePath
-      .replace(/[<>:"|?*]/g, '_')
+    const withoutColons = filePath.replace(/:/g, '');
+    return withoutColons
+      .replace(/[<>"|?*]/g, '_')
       .replace(/\s+/g, '_')
       .toLowerCase();
   }
@@ -356,6 +369,12 @@ export class TaskSecurityValidator implements SecurityValidator {
  * Create security validator with options
  */
 export const createSecurityValidator = (options?: Partial<SecurityOptions>): SecurityValidator => {
-  const finalOptions = { ...DEFAULT_SECURITY_OPTIONS, ...options };
+  const finalOptions: SecurityOptions = {
+    ...DEFAULT_SECURITY_OPTIONS,
+    ...options,
+    allowedExtensions: [
+      ...((options?.allowedExtensions ?? DEFAULT_SECURITY_OPTIONS.allowedExtensions) as string[]),
+    ],
+  };
   return new TaskSecurityValidator(finalOptions);
 };
