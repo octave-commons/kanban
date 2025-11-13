@@ -8,6 +8,7 @@ import path from 'path';
 import { performance } from 'perf_hooks';
 import { createLogger, type LogFields } from '@promethean-os/utils';
 import matter from 'gray-matter';
+import { columnKey } from '../kanban.js';
 import type { IndexedTask } from '../../board/types.js';
 import type { TaskCache } from '../../board/task-cache.js';
 import type {
@@ -28,6 +29,15 @@ import { createSecurityValidator } from './security.js';
 import { createBackupManager } from './backup.js';
 
 const logger = createLogger({ service: 'directory-adapter' });
+
+const STATUS_ALIAS_MAP: Record<string, string> = {
+  doing: 'in_progress',
+  progress: 'in_progress',
+  wip: 'in_progress',
+  inprocess: 'in_progress',
+  in_process: 'in_progress',
+  open: 'todo',
+};
 
 /**
  * Main DirectoryAdapter implementation
@@ -123,7 +133,11 @@ export class DirectoryAdapter implements TaskFileOperations {
       }
 
       return this.createSuccessResult(task, context, startTime);
+
     } catch (error) {
+      if (this.isFileMissing(error)) {
+        return this.handleError(new FileNotFoundError(context.path, 'read'), context, startTime);
+      }
       return this.handleError(error, context, startTime);
     }
   }
@@ -146,19 +160,24 @@ export class DirectoryAdapter implements TaskFileOperations {
         backupPath = await this.backupManager.createBackup(context.path, 'write', context);
       }
 
+      const normalizedTask: IndexedTask = {
+        ...task,
+        status: this.normalizeStatus(task.status),
+      };
+
       // Prepare content
       const frontmatter = {
-        uuid: task.uuid,
-        title: task.title,
-        status: task.status,
-        priority: task.priority,
-        owner: task.owner,
-        labels: task.labels,
-        created: task.created,
+        uuid: normalizedTask.uuid,
+        title: normalizedTask.title,
+        status: normalizedTask.status,
+        priority: normalizedTask.priority,
+        owner: normalizedTask.owner,
+        labels: normalizedTask.labels,
+        created: normalizedTask.created,
         updated: new Date().toISOString(),
       };
 
-      const content = matter.stringify(task.content || '', frontmatter);
+      const content = matter.stringify(normalizedTask.content || '', frontmatter);
 
       // Validate content
       const contentValidation = await this.securityValidator.validateFileContent(content, context);
@@ -180,7 +199,7 @@ export class DirectoryAdapter implements TaskFileOperations {
 
       // Update cache
       if (this.cache) {
-        await this.cache.setTask({ ...task, path: context.path });
+        await this.cache.setTask({ ...normalizedTask, path: context.path });
       }
 
       const result = this.createSuccessResult(undefined, context, startTime);
@@ -220,19 +239,24 @@ export class DirectoryAdapter implements TaskFileOperations {
       // Validate operation
       await this.validateOperation(context);
 
+      const normalizedTask: IndexedTask = {
+        ...task,
+        status: this.normalizeStatus(task.status || 'incoming'),
+      };
+
       // Prepare content with creation timestamp
       const frontmatter = {
-        uuid: task.uuid,
-        title: task.title,
-        status: task.status || 'incoming',
-        priority: task.priority || 'medium',
-        owner: task.owner || '',
-        labels: task.labels || [],
+        uuid: normalizedTask.uuid,
+        title: normalizedTask.title,
+        status: normalizedTask.status || 'incoming',
+        priority: normalizedTask.priority || 'medium',
+        owner: normalizedTask.owner || '',
+        labels: normalizedTask.labels || [],
         created: new Date().toISOString(),
         updated: new Date().toISOString(),
       };
 
-      const content = matter.stringify(task.content || '', frontmatter);
+      const content = matter.stringify(normalizedTask.content || '', frontmatter);
 
       // Validate content
       const contentValidation = await this.securityValidator.validateFileContent(content, context);
@@ -254,7 +278,7 @@ export class DirectoryAdapter implements TaskFileOperations {
 
       // Update cache
       if (this.cache) {
-        await this.cache.setTask({ ...task, path: context.path });
+        await this.cache.setTask({ ...normalizedTask, path: context.path });
       }
 
       return this.createSuccessResult(undefined, context, startTime);
@@ -296,8 +320,13 @@ export class DirectoryAdapter implements TaskFileOperations {
         updated: new Date().toISOString(),
       };
 
+      const normalizedTask: IndexedTask = {
+        ...updatedTask,
+        status: this.normalizeStatus(updatedTask.status),
+      };
+
       // Write updated task
-      const writeResult = await this.writeTaskFile(updatedTask);
+      const writeResult = await this.writeTaskFile(normalizedTask);
       if (!writeResult.success) {
         throw writeResult.error
           ? new Error(writeResult.error)
@@ -403,9 +432,13 @@ export class DirectoryAdapter implements TaskFileOperations {
         title: newTitle,
         path: newPath,
       };
+      const normalizedUpdatedTask = {
+        ...updatedTask,
+        status: this.normalizeStatus(updatedTask.status),
+      };
 
       // Write to new location
-      const writeResult = await this.writeTaskFile(updatedTask);
+      const writeResult = await this.writeTaskFile(normalizedUpdatedTask);
       if (!writeResult.success) {
         throw writeResult.error
           ? new Error(writeResult.error)
@@ -417,8 +450,7 @@ export class DirectoryAdapter implements TaskFileOperations {
 
       // Update cache
       if (this.cache) {
-        await this.cache.removeTask(uuid);
-        await this.cache.setTask(task);
+        await this.cache.setTask(normalizedUpdatedTask);
       }
 
       const result = this.createSuccessResult(undefined, context, startTime);
@@ -742,7 +774,12 @@ export class DirectoryAdapter implements TaskFileOperations {
     startTime: number,
   ): FileOperationResult {
     const duration = performance.now() - startTime;
-    const errorMessage = error instanceof Error ? error.message : String(error);
+    let errorMessage = error instanceof Error ? error.message : String(error);
+
+    if (error instanceof SecurityValidationError) {
+      const details = error.securityIssues?.length ? error.securityIssues.join('; ') : errorMessage;
+      errorMessage = `security violation: ${details}`;
+    }
 
     this.updateMetrics(context.operation, duration, false);
     this.logAuditEntry(context, false, errorMessage, duration);
@@ -812,6 +849,17 @@ export class DirectoryAdapter implements TaskFileOperations {
     if (this.auditLog.length > 10000) {
       this.auditLog.splice(0, 1000);
     }
+  }
+
+  private normalizeStatus(status?: string): string {
+    const key = columnKey(status ?? 'incoming');
+    const alias = STATUS_ALIAS_MAP[key];
+    const normalized = alias || key;
+    return normalized.length > 0 ? normalized : 'incoming';
+  }
+
+  private isFileMissing(error: unknown): error is NodeJS.ErrnoException {
+    return Boolean((error as NodeJS.ErrnoException)?.code === 'ENOENT');
   }
 
   private recordCacheHit(_operation: FileOperationType, _path: string): void {

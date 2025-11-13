@@ -3,8 +3,11 @@ import { mkdir, writeFile, readdir } from 'node:fs/promises';
 
 import test from 'ava';
 
-import { createTask } from '../lib/kanban.js';
+import { createTaskAction } from '../lib/actions/tasks/create-task.js';
 import { withTempDir, makeBoard } from '../test-utils/helpers.js';
+
+// Avoid expensive index refresh during unit tests
+process.env.KANBAN_SKIP_INDEX = '1';
 
 test('bulk import operations do not create duplicates', async (t) => {
   const tempDir = await withTempDir(t);
@@ -28,7 +31,13 @@ test('bulk import operations do not create duplicates', async (t) => {
   // Import all tasks
   const createdTasks: any[] = [];
   for (const taskData of bulkTasks) {
-    const task = await createTask(board, 'incoming', taskData, tasksDir, boardPath);
+    const { task } = await createTaskAction({
+      board,
+      column: 'incoming',
+      input: taskData,
+      tasksDir,
+      boardPath,
+    });
     createdTasks.push(task);
   }
 
@@ -73,7 +82,7 @@ test('bulk import operations do not create duplicates', async (t) => {
   );
 });
 
-test('bulk import with different columns allows same titles', async (t) => {
+test('bulk import with allowed columns still permits duplicate titles', async (t) => {
   const tempDir = await withTempDir(t);
   const boardPath = path.join(tempDir, 'board.md');
   const tasksDir = path.join(tempDir, 'tasks');
@@ -82,41 +91,39 @@ test('bulk import with different columns allows same titles', async (t) => {
 
   const board = makeBoard([]);
 
-  // Import same task titles into different columns
+  // Import same task titles into the two allowed starting columns
   const crossColumnTasks = [
     { title: 'Cross-Column Task', column: 'incoming', content: 'Incoming content' },
-    { title: 'Cross-Column Task', column: 'ready', content: 'Ready content' },
-    { title: 'Cross-Column Task', column: 'in-progress', content: 'In-progress content' },
+    { title: 'Cross-Column Task', column: 'icebox', content: 'Icebox content' },
   ];
 
   const createdTasks: any[] = [];
   for (const taskData of crossColumnTasks) {
-    const task = await createTask(
+    const { task } = await createTaskAction({
       board,
-      taskData.column,
-      { title: taskData.title, content: taskData.content },
+      column: taskData.column,
+      input: { title: taskData.title, content: taskData.content },
       tasksDir,
       boardPath,
-    );
+    });
     createdTasks.push(task);
   }
 
-  // Should create 3 separate tasks (one per column)
+  // Should create 2 separate tasks (one per starting column)
   const files = await readdir(tasksDir);
   const taskFiles = files.filter((file) => file.endsWith('.md'));
-  t.is(taskFiles.length, 3, 'Should create 3 tasks for different columns');
+  t.is(taskFiles.length, 2, 'Should create 2 tasks for the allowed columns');
 
   // All should have different UUIDs but same title
   const uuids = new Set(createdTasks.map((task) => task.uuid));
   const titles = new Set(createdTasks.map((task) => task.title));
 
-  t.is(uuids.size, 3, 'All tasks should have different UUIDs');
+  t.is(uuids.size, 2, 'All tasks should have different UUIDs');
   t.is(titles.size, 1, 'All tasks should have same title');
 
   // Verify each task is in correct column
   const incomingTask = createdTasks.find((t) => t.status === 'incoming');
-  const readyTask = createdTasks.find((t) => t.status === 'ready');
-  const inProgressTask = createdTasks.find((t) => t.status === 'in-progress');
+  const iceboxTask = createdTasks.find((t) => t.status === 'icebox');
 
   // All tasks should have formatted content with sections
   t.true(
@@ -128,19 +135,11 @@ test('bulk import with different columns allows same titles', async (t) => {
     'Incoming task should have Blocked By section',
   );
   t.true(
-    readyTask?.content?.includes('Ready content') ?? false,
-    'Ready task should contain original content',
+    iceboxTask?.content?.includes('Icebox content') ?? false,
+    'Icebox task should contain original content',
   );
   t.true(
-    readyTask?.content?.includes('## ⛓️ Blocked By') ?? false,
-    'Ready task should have Blocked By section',
-  );
-  t.true(
-    inProgressTask?.content?.includes('In-progress content') ?? false,
-    'In-progress task should contain original content',
-  );
-  t.true(
-    inProgressTask?.content?.includes('## ⛓️ Blocked By') ?? false,
-    'In-progress task should have Blocked By section',
+    iceboxTask?.content?.includes('## ⛓️ Blocked By') ?? false,
+    'Icebox task should have Blocked By section',
   );
 });

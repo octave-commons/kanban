@@ -101,7 +101,7 @@ export class TaskBackupManager implements BackupManager {
 
       // Verify backup integrity
       if (this.hashVerification) {
-        await this.verifyBackupIntegrity(backupPath, contentHash);
+        await this.verifyBackupIntegrity(backupPath, contentHash, metadata.compressed);
       }
 
       return backupPath;
@@ -341,8 +341,15 @@ export class TaskBackupManager implements BackupManager {
   /**
    * Verify backup integrity
    */
-  private async verifyBackupIntegrity(backupPath: string, expectedHash: string): Promise<void> {
-    const content = await fs.readFile(backupPath, 'utf8');
+  private async verifyBackupIntegrity(
+    backupPath: string,
+    expectedHash: string,
+    compressed = false,
+  ): Promise<void> {
+    let content = await fs.readFile(backupPath, 'utf8');
+    if (compressed) {
+      content = await this.decompressContent(content);
+    }
     const actualHash = this.calculateHash(content);
 
     if (actualHash !== expectedHash) {

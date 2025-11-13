@@ -5,7 +5,6 @@ import { parseFrontmatter as parseMarkdownFrontmatter } from '@promethean-os/mar
 import { loadKanbanConfig } from '../board/config.js';
 import { refreshTaskIndex, indexTasks, writeIndexFile, serializeTasks } from '../board/indexer.js';
 import type { EventLogManager } from '../board/event-log/index.js';
-import { TaskGitTracker } from './task-git-tracker.js';
 import type { IndexTasksOptions } from '../board/indexer.js';
 import type { Board, ColumnData, Task, EpicTask } from './types.js';
 import { getEpicSubtasks, calculateEpicStatus } from './epic.js';
@@ -1058,56 +1057,14 @@ export const updateStatus = async (
         // Prefer file timestamp over board timestamp to maintain data integrity
         const preservedCreatedAt = existingCreatedAt || found.created_at || NOW_ISO();
 
-        // Initialize git tracker and update task with commit tracking
-        const gitTracker = new TaskGitTracker({ repoRoot: process.cwd() });
-
-        // Create task object with updated status
-        const updatedTask = {
+        const updatedTask: Task = {
           ...found,
           status: normalizedStatus,
           content: existingContent,
           created_at: preservedCreatedAt,
         };
 
-        // Create a complete Task object with the updated status
-        const finalTask: Task = {
-          ...updatedTask,
-        };
-
-        // Write updated task file with new status (without commit tracking yet)
-        const updatedContent = toFrontmatter(finalTask);
-        await fs.writeFile(taskFilePath, updatedContent, 'utf8');
-
-        // Update commit tracking (read-only - no commits created)
-        try {
-          // Read the current file content
-          const fileContent = await fs.readFile(taskFilePath, 'utf8');
-          const parsed = parseMarkdownFrontmatter(fileContent);
-          const existingFrontmatter = parsed.data || {};
-
-          // Update frontmatter with commit tracking
-          const updatedFrontmatter = gitTracker.updateTaskCommitTracking(
-            {
-              ...existingFrontmatter,
-              ...finalTask,
-            },
-            taskFilePath,
-            uuid,
-            'status_change',
-          );
-
-          // Write the file again with commit tracking
-          const finalContent = toFrontmatter({
-            ...finalTask,
-            ...updatedFrontmatter,
-          });
-          await fs.writeFile(taskFilePath, finalContent, 'utf8');
-
-          // Note: Commit tracking metadata is added to frontmatter but not committed
-          // The event log exists locally and can be recreated from git history if needed
-        } catch (commitError) {
-          console.warn(`Warning: Git tracking failed for task ${uuid}: ${commitError}`);
-        }
+        await fs.writeFile(taskFilePath, toFrontmatter(updatedTask), 'utf8');
       }
     } catch (error) {
       // Log warning but don't fail status update
@@ -1596,49 +1553,15 @@ export const pushToTasks = async (
       // Ensure we always have a timestamp to prevent data loss
       const preservedCreatedAt = existingCreatedAt || finalTask.created_at || NOW_ISO();
 
-      // Initialize git tracker for new task creation
-      const gitTracker = new TaskGitTracker({ repoRoot: process.cwd() });
-
-      const content = toFrontmatter({
+      const taskForWrite: Task = {
         ...finalTask,
-        status: normalizedBoardStatus, // Always use the normalized board column name as authoritative status
+        status: normalizedBoardStatus,
         content: finalContent,
         created_at: preservedCreatedAt,
-      });
+      };
 
+      const content = toFrontmatter(taskForWrite);
       await fs.writeFile(finalTargetPath, content, 'utf8');
-
-      // Update commit tracking (read-only - no commits created)
-      try {
-        const operation = previous ? 'update' : 'create';
-
-        // Update frontmatter with commit tracking
-        const taskWithCommitTracking = gitTracker.updateTaskCommitTracking(
-          {
-            ...finalTask,
-            status: normalizedBoardStatus,
-            content: finalContent,
-            created_at: preservedCreatedAt,
-          },
-          finalTargetPath,
-          finalTask.uuid,
-          operation,
-        );
-
-        const contentWithTracking = toFrontmatter({
-          ...finalTask,
-          status: normalizedBoardStatus,
-          content: finalContent,
-          created_at: preservedCreatedAt,
-          ...taskWithCommitTracking, // Include commit tracking fields
-        });
-        await fs.writeFile(finalTargetPath, contentWithTracking, 'utf8');
-
-        // Note: Commit tracking metadata is included in frontmatter but not committed
-        // The event log exists locally and can be recreated from git history if needed
-      } catch (commitError) {
-        console.warn(`Warning: Git tracking failed for task ${finalTask.uuid}: ${commitError}`);
-      }
 
       if (!previous) {
         // Check if this was actually a merge (duplicate detected)

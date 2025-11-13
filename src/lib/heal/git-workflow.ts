@@ -571,3 +571,7 @@ export class GitWorkflow {
 export function createGitWorkflow(config?: GitWorkflowConfig): GitWorkflow {
   return new GitWorkflow(config);
 }
+
+export namespace GitWorkflow {
+  export const createGitWorkflow = (config?: GitWorkflowConfig): GitWorkflow => new GitWorkflow(config);
+}

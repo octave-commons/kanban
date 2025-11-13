@@ -437,3 +437,8 @@ export class CommitMessageGenerator {
 export function createCommitMessageGenerator(options?: CommitMessageOptions): CommitMessageGenerator {
   return new CommitMessageGenerator(options);
 }
+
+export namespace CommitMessageGenerator {
+  export const createCommitMessageGenerator = (options?: CommitMessageOptions): CommitMessageGenerator =>
+    new CommitMessageGenerator(options);
+}

@@ -1,4 +1,4 @@
-export type Status = 'open' | 'doing' | 'blocked' | 'done' | 'dropped';
+export type Status = string;
 export type Priority = 'low' | 'medium' | 'high' | 'critical';
 
 export type Estimates = Readonly<{

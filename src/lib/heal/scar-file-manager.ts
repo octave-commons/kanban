@@ -492,3 +492,8 @@ export class ScarFileManager {
 export function createScarFileManager(config?: ScarFileManagerConfig): ScarFileManager {
   return new ScarFileManager(config);
 }
+
+export namespace ScarFileManager {
+  export const createScarFileManager = (config?: ScarFileManagerConfig): ScarFileManager =>
+    new ScarFileManager(config);
+}

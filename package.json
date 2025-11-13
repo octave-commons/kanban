@@ -49,14 +49,16 @@
     "kanban": "dist/cli.js"
   },
   "scripts": {
-    "build": "tsc -b tsconfig.build.json --force",
+    "build": "pnpm run build:dist && cp -r src/nbb dist/nbb",
     "build:cljs": "shadow-cljs release kanban-frontend",
     "build:docs": "typedoc --options typedoc.json",
     "dev:cljs": "shadow-cljs watch kanban-frontend",
     "prepack": "pnpm run build && pnpm run build:cljs",
     "test": "pnpm run build && ava",
     "test:coverage": "c8 pnpm run test",
-    "coverage": "c8 --reporter=html --reporter=text pnpm run test"
+    "coverage": "c8 --reporter=html --reporter=text pnpm run test",
+    "build:dist": "tsc -b tsconfig.build.json --force",
+    "clean": "rm -rf ./dist tsconfig.tsbuildinfo"
   },
   "dependencies": {
     "@promethean-os/lmdb-cache": "workspace:*",

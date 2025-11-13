@@ -20,9 +20,9 @@ test('move_up - basic functionality', async (t) => {
   };
 
   // Create tasks first using the create command
-  await executeCommand('create', ['First task', '--status=Todo'], context);
-  const task2 = (await executeCommand('create', ['Second task', '--status=Todo'], context)) as any;
-  await executeCommand('create', ['Third task', '--status=Todo'], context);
+  await executeCommand('create', ['First task', '--status=incoming'], context);
+  const task2 = (await executeCommand('create', ['Second task', '--status=incoming'], context)) as any;
+  await executeCommand('create', ['Third task', '--status=incoming'], context);
 
   // Test move_up command - move second task up
   const result = (await executeCommand('move_up', [task2.uuid], context)) as
@@ -31,7 +31,7 @@ test('move_up - basic functionality', async (t) => {
 
   t.truthy(result);
   t.is(result!.uuid, task2.uuid);
-  t.is(result!.column, 'Todo');
+  t.is(result!.column, 'incoming');
   t.is(result!.rank, 0); // Should be at position 0 after moving up
 });
 
@@ -50,9 +50,9 @@ test('move_down - basic functionality', async (t) => {
   };
 
   // Create tasks first using the create command
-  await executeCommand('create', ['First task', '--status=Todo'], context);
-  const task2 = (await executeCommand('create', ['Second task', '--status=Todo'], context)) as any;
-  await executeCommand('create', ['Third task', '--status=Todo'], context);
+  await executeCommand('create', ['First task', '--status=incoming'], context);
+  const task2 = (await executeCommand('create', ['Second task', '--status=incoming'], context)) as any;
+  await executeCommand('create', ['Third task', '--status=incoming'], context);
 
   // Test move_down command - move second task down
   const result = (await executeCommand('move_down', [task2.uuid], context)) as
@@ -61,7 +61,7 @@ test('move_down - basic functionality', async (t) => {
 
   t.truthy(result);
   t.is(result!.uuid, task2.uuid);
-  t.is(result!.column, 'Todo');
+  t.is(result!.column, 'incoming');
   t.is(result!.rank, 2); // Should be at position 2 after moving down
 });
 
@@ -80,8 +80,8 @@ test('move_up - first task (no-op)', async (t) => {
   };
 
   // Create tasks first using the create command
-  const task1 = (await executeCommand('create', ['First task', '--status=Todo'], context)) as any;
-  await executeCommand('create', ['Second task', '--status=Todo'], context);
+  const task1 = (await executeCommand('create', ['First task', '--status=incoming'], context)) as any;
+  await executeCommand('create', ['Second task', '--status=incoming'], context);
 
   // Moving first task up should be no-op
   const result = (await executeCommand('move_up', [task1.uuid], context)) as
@@ -90,7 +90,7 @@ test('move_up - first task (no-op)', async (t) => {
 
   t.truthy(result);
   t.is(result!.uuid, task1.uuid);
-  t.is(result!.column, 'Todo');
+  t.is(result!.column, 'incoming');
   t.is(result!.rank, 0); // Should still be at position 0
 });
 
@@ -109,8 +109,8 @@ test('move_down - last task (no-op)', async (t) => {
   };
 
   // Create tasks first using the create command
-  await executeCommand('create', ['First task', '--status=Todo'], context);
-  const task2 = (await executeCommand('create', ['Second task', '--status=Todo'], context)) as any;
+  await executeCommand('create', ['First task', '--status=incoming'], context);
+  const task2 = (await executeCommand('create', ['Second task', '--status=incoming'], context)) as any;
 
   // Moving last task down should be no-op
   const result = (await executeCommand('move_down', [task2.uuid], context)) as
@@ -119,7 +119,7 @@ test('move_down - last task (no-op)', async (t) => {
 
   t.truthy(result);
   t.is(result!.uuid, task2.uuid);
-  t.is(result!.column, 'Todo');
+  t.is(result!.column, 'incoming');
   t.is(result!.rank, 1); // Should still be at position 1
 });
 

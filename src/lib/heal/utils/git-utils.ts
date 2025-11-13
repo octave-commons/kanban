@@ -323,3 +323,7 @@ export class GitUtils {
 export function createGitUtils(repoPath: string): GitUtils {
   return new GitUtils(repoPath);
 }
+
+export namespace GitUtils {
+  export const createGitUtils = (repoPath: string): GitUtils => new GitUtils(repoPath);
+}
