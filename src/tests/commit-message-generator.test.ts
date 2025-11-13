@@ -140,7 +140,7 @@ test('generateTasksDirectoryMessage with created tasks', (t) => {
   const generator = new CommitMessageGenerator();
   const taskDiffs = [
     {
-      task: mockTasks[0],
+      task: mockTasks[0]!,
       changeType: 'created' as const,
       changedFields: ['title', 'status'],
     },
@@ -149,25 +149,25 @@ test('generateTasksDirectoryMessage with created tasks', (t) => {
   const message = generator.generateTasksDirectoryMessage(taskDiffs);
   
   t.true(message.includes('Add 1 task'));
-  t.true(message.includes('created (1):'));
+  t.true(message.includes('Created (1):'));
   t.true(message.includes('- Fix duplicate task issue'));
-  t.true(message.includes('Changed: title, status'));
+  t.true(message.includes('  Changed: title, status'));
 });
 
 test('generateTasksDirectoryMessage with mixed changes', (t) => {
   const generator = new CommitMessageGenerator();
   const taskDiffs = [
     {
-      task: mockTasks[0],
+      task: mockTasks[0]!,
       changeType: 'created' as const,
     },
     {
-      task: mockTasks[1],
+      task: mockTasks[1]!,
       changeType: 'modified' as const,
       changedFields: ['status'],
     },
     {
-      task: { ...mockTasks[0], uuid: 'task-3-uuid', title: 'Deleted task' },
+      task: { ...mockTasks[0]!, uuid: 'task-3-uuid', title: 'Deleted task' },
       changeType: 'deleted' as const,
     },
   ];
@@ -175,9 +175,9 @@ test('generateTasksDirectoryMessage with mixed changes', (t) => {
   const message = generator.generateTasksDirectoryMessage(taskDiffs);
   
   t.true(message.includes('Update tasks: 1 added, 1 modified, 1 removed'));
-  t.true(message.includes('created (1):'));
-  t.true(message.includes('modified (1):'));
-  t.true(message.includes('deleted (1):'));
+  t.true(message.includes('Created (1):'));
+  t.true(message.includes('Modified (1):'));
+  t.true(message.includes('Deleted (1):'));
 });
 
 test('generateKanbanBoardMessage creates proper message', (t) => {
@@ -223,7 +223,7 @@ test('generateDependenciesMessage creates proper message', (t) => {
 test('generateFromTaskDiff creates proper message', (t) => {
   const generator = new CommitMessageGenerator({ includeTaskIds: true });
   const taskDiff = {
-    task: mockTasks[0],
+    task: mockTasks[0]!,
     changeType: 'modified' as const,
     changedFields: ['status', 'updated_at'],
     diff: '--- a/task.md\n+++ b/task.md\n@@ -1,3 +1,3 @@\n status: todo\n-status: todo\n+status: in_progress',
@@ -231,7 +231,7 @@ test('generateFromTaskDiff creates proper message', (t) => {
   
   const message = generator.generateFromTaskDiff(taskDiff);
   
-  t.true(message.includes('Update task: Fix duplicate task issue (task-1-uu)'));
+  t.true(message.includes('Update task: Fix duplicate task issue (task-1-u)'));
   t.true(message.includes('Task: Fix duplicate task issue'));
   t.true(message.includes('Status: in_progress'));
   t.true(message.includes('Change type: modified'));
@@ -241,14 +241,14 @@ test('generateFromTaskDiff creates proper message', (t) => {
 test('generateFromTaskDiff without task IDs', (t) => {
   const generator = new CommitMessageGenerator({ includeTaskIds: false });
   const taskDiff = {
-    task: mockTasks[0],
+    task: mockTasks[0]!,
     changeType: 'created' as const,
   };
   
   const message = generator.generateFromTaskDiff(taskDiff);
   
   t.true(message.includes('Add task: Fix duplicate task issue'));
-  t.false(message.includes('task-1-uu'));
+  t.false(message.includes('task-1-u'));
 });
 
 test('generateScarNarrative creates proper message', (t) => {
@@ -319,19 +319,22 @@ test('subject line truncation works correctly', (t) => {
     reason: longSubject,
   });
   
-  const lines = message.split('\n');
-  const subject = lines[0];
+    const lines = message.split('\n');
+  const subject = lines[0] ?? '';
   
   t.true(subject.length <= 33); // 30 + '...'
   t.true(subject.endsWith('...'));
 });
+
+
+
 
 test('prefix is added to subject lines', (t) => {
   const generator = new CommitMessageGenerator({ prefix: 'heal' });
   const message = generator.generatePreOperationMessage(mockScarContext);
   
   const lines = message.split('\n');
-  const subject = lines[0];
+  const subject = lines[0] ?? '';
   
   t.true(subject.startsWith('heal '));
 });

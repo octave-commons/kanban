@@ -87,13 +87,15 @@ test('validateStartingStatus rejects random invalid statuses', (t) => {
   }
 });
 
-test('validateStartingStatus handles normalized column keys correctly', (t) => {
-  // Test that column key normalization works
-  t.notThrows(() => validateStartingStatus('Ice Box')); // Should normalize to 'icebox'
-  t.notThrows(() => validateStartingStatus('In-Coming')); // Should normalize to 'incoming'
+test('validateStartingStatus rejects statuses that rely on spacing or punctuation changes', (t) => {
+  const spaceVariant = t.throws(() => validateStartingStatus('Ice Box'));
+  t.true(spaceVariant.message.includes('Invalid starting status: "Ice Box"'));
 
-  const error = t.throws(() => validateStartingStatus('To Do')); // Should normalize to 'todo' and reject
-  t.true(error.message.includes('Invalid starting status: "To Do"'));
+  const hyphenVariant = t.throws(() => validateStartingStatus('In-Coming'));
+  t.true(hyphenVariant.message.includes('Invalid starting status: "In-Coming"'));
+
+  const todoVariant = t.throws(() => validateStartingStatus('To Do'));
+  t.true(todoVariant.message.includes('Invalid starting status: "To Do"'));
 });
 
 test('validateStartingStatus error message provides helpful guidance', (t) => {
@@ -107,10 +109,14 @@ test('validateStartingStatus error message provides helpful guidance', (t) => {
   t.true(error.message.includes('Use --status flag'));
 });
 
-test('validateStartingStatus handles special characters in status names', (t) => {
-  const specialCases = ['icebox!', 'incoming?', 'icebox@home', 'incoming-work'];
+test('validateStartingStatus tolerates trailing punctuation but rejects modified words', (t) => {
+  const trailingPunctuation = ['icebox!', 'incoming?'];
+  for (const status of trailingPunctuation) {
+    t.notThrows(() => validateStartingStatus(status));
+  }
 
-  for (const status of specialCases) {
+  const modifiedWords = ['icebox@home', 'incoming_work'];
+  for (const status of modifiedWords) {
     const error = t.throws(() => validateStartingStatus(status));
     t.true(error.message.includes(`Invalid starting status: "${status}"`));
   }

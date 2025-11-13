@@ -3,8 +3,8 @@ import path from 'node:path';
 
 import { test, expect } from '@playwright/test';
 
-import { createKanbanUiServer } from '../lib/ui-server.js';
-import { makeTask, withTempDir, writeTaskFile } from '../test-utils/helpers.js';
+import { createKanbanUiServer } from '../src/lib/ui-server.js';
+import { makeTask, withTempDir, writeTaskFile } from '../src/test-utils/helpers.js';
 
 type ServerInstance = ReturnType<typeof createKanbanUiServer>;
 

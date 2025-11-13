@@ -54,7 +54,9 @@
     "build:docs": "typedoc --options typedoc.json",
     "dev:cljs": "shadow-cljs watch kanban-frontend",
     "prepack": "pnpm run build && pnpm run build:cljs",
-    "test": "pnpm run build && ava"
+    "test": "pnpm run build && ava",
+    "test:coverage": "c8 pnpm run test",
+    "coverage": "c8 --reporter=html --reporter=text pnpm run test"
   },
   "dependencies": {
     "@promethean-os/lmdb-cache": "workspace:*",
@@ -82,6 +84,7 @@
     "@types/ws": "^8.5.0",
     "@types/xml2js": "^0.4.11",
     "@types/commander": "^2.12.2",
+    "c8": "^10.1.2",
     "esmock": "^2.7.3",
     "garden": "^0.52.0",
     "react": "^18.2.0",
