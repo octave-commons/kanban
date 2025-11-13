@@ -25,14 +25,14 @@ test('integration: board operations do not create duplicate files', async (t) =>
   );
   const task2 = await createTask(
     board,
-    'ready',
+    'icebox',
     { title: 'Task 2', content: 'Content 2' },
     tasksDir,
     boardPath,
   );
   const task3 = await createTask(
     board,
-    'in-progress',
+    'incoming',
     { title: 'Task 3', content: 'Content 3' },
     tasksDir,
     boardPath,
@@ -62,17 +62,15 @@ test('integration: board operations do not create duplicate files', async (t) =>
   const regeneratedBoard = await loadBoard(boardPath, tasksDir);
   const incomingTasks =
     regeneratedBoard.columns.find((col: any) => col.name === 'incoming')?.tasks || [];
-  const readyTasks = regeneratedBoard.columns.find((col: any) => col.name === 'ready')?.tasks || [];
-  const inProgressTasks =
-    regeneratedBoard.columns.find((col: any) => col.name === 'in-progress')?.tasks || [];
+  const iceboxTasks =
+    regeneratedBoard.columns.find((col: any) => col.name === 'icebox')?.tasks || [];
 
-  t.is(incomingTasks.length, 1, 'Should have 1 incoming task');
-  t.is(readyTasks.length, 1, 'Should have 1 ready task');
-  t.is(inProgressTasks.length, 1, 'Should have 1 in-progress task');
+  t.is(incomingTasks.length, 2, 'Should have 2 incoming tasks');
+  t.is(iceboxTasks.length, 1, 'Should have 1 icebox task');
 
-  t.is(incomingTasks[0]?.uuid, task1.uuid, 'Incoming task UUID should be preserved');
-  t.is(readyTasks[0]?.uuid, task2.uuid, 'Ready task UUID should be preserved');
-  t.is(inProgressTasks[0]?.uuid, task3.uuid, 'In-progress task UUID should be preserved');
+  const incomingUuids = incomingTasks.map((task: any) => task.uuid).sort();
+  t.deepEqual(incomingUuids.sort(), [task1.uuid, task3.uuid].sort(), 'Incoming tasks preserved');
+  t.is(iceboxTasks[0]?.uuid, task2.uuid, 'Icebox task UUID should be preserved');
 });
 
 test('integration: concurrent task creation does not create duplicates', async (t) => {
@@ -150,7 +148,7 @@ test('integration: mixed operations maintain data integrity', async (t) => {
   );
   const taskB = await createTask(
     board,
-    'ready',
+    'icebox',
     { title: 'Task B', content: 'Content B' },
     tasksDir,
     boardPath,
@@ -182,14 +180,14 @@ test('integration: mixed operations maintain data integrity', async (t) => {
 
   // Verify data integrity
   const incomingTasks = finalBoard.columns.find((col: any) => col.name === 'incoming')?.tasks || [];
-  const readyTasks = finalBoard.columns.find((col: any) => col.name === 'ready')?.tasks || [];
+  const iceboxTasks = finalBoard.columns.find((col: any) => col.name === 'icebox')?.tasks || [];
 
   t.is(incomingTasks.length, 2, 'Should have 2 incoming tasks');
-  t.is(readyTasks.length, 1, 'Should have 1 ready task');
+  t.is(iceboxTasks.length, 1, 'Should have 1 icebox task');
 
   const finalTaskA = incomingTasks.find((task: any) => task.title === 'Task A');
   const finalTaskC = incomingTasks.find((task: any) => task.title === 'Task C');
-  const finalTaskB = readyTasks.find((task: any) => task.title === 'Task B');
+  const finalTaskB = iceboxTasks.find((task: any) => task.title === 'Task B');
 
   t.truthy(finalTaskA, 'Task A should exist');
   t.truthy(finalTaskB, 'Task B should exist');
@@ -234,7 +232,7 @@ test('integration: file system reflects board state accurately', async (t) => {
   );
   await createTask(
     board,
-    'incoming',
+    'icebox',
     { title: 'Ready Task', content: 'Ready' },
     tasksDir,
     boardPath,
@@ -272,7 +270,7 @@ test('integration: file system reflects board state accurately', async (t) => {
   );
   await createTask(
     board,
-    'ready',
+    'icebox',
     { title: 'Ready Task', content: 'Duplicate' },
     tasksDir,
     boardPath,
