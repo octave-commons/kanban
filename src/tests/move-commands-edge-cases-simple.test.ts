@@ -58,7 +58,7 @@ test('move operations - single task in column', async (t) => {
   };
 
   // Create single task
-  const task1 = (await executeCommand('create', ['Single Task', '--status=Todo'], context)) as any;
+  const task1 = (await executeCommand('create', ['Single Task', '--status=incoming'], context)) as any;
 
   // Both moves should be no-ops
   const upResult = (await executeCommand('move_up', [task1.uuid], context)) as any;
@@ -85,7 +85,7 @@ test('move operations - empty UUID', async (t) => {
   };
 
   // Create a task first
-  await executeCommand('create', ['Test Task', '--status=Todo'], context);
+  await executeCommand('create', ['Test Task', '--status=incoming'], context);
 
   // Empty string should throw CommandUsageError
   try {
@@ -111,7 +111,7 @@ test('move operations - malformed UUID', async (t) => {
   };
 
   // Create a task first
-  await executeCommand('create', ['Test Task', '--status=Todo'], context);
+  await executeCommand('create', ['Test Task', '--status=incoming'], context);
 
   // Try malformed UUIDs (excluding empty string which is caught by argument validation)
   const malformedUuids = [
@@ -143,7 +143,7 @@ test('move operations - special characters in UUID', async (t) => {
   };
 
   // Create a task first
-  await executeCommand('create', ['Test Task', '--status=Todo'], context);
+  await executeCommand('create', ['Test Task', '--status=incoming'], context);
 
   // Try UUIDs with special characters
   const specialCharUuids = [
@@ -178,7 +178,7 @@ test('move operations - very long UUID', async (t) => {
   };
 
   // Create a task first
-  await executeCommand('create', ['Test Task', '--status=Todo'], context);
+  await executeCommand('create', ['Test Task', '--status=incoming'], context);
 
   // Try very long UUID
   const longUuid = 'a'.repeat(1000);
@@ -201,7 +201,7 @@ test('move operations - null and undefined inputs', async (t) => {
   };
 
   // Create a task first
-  await executeCommand('create', ['Test Task', '--status=Todo'], context);
+  await executeCommand('create', ['Test Task', '--status=incoming'], context);
 
   // Test with null and undefined (these will be converted to strings)
   const result1 = await executeCommand('move_up', ['null'], context);
@@ -226,9 +226,9 @@ test('move operations - concurrent same task', async (t) => {
   };
 
   // Create 3 tasks
-  await executeCommand('create', ['Task 1', '--status=Todo'], context);
-  await executeCommand('create', ['Task 2', '--status=Todo'], context);
-  const task3 = (await executeCommand('create', ['Task 3', '--status=Todo'], context)) as any;
+  await executeCommand('create', ['Task 1', '--status=incoming'], context);
+  await executeCommand('create', ['Task 2', '--status=incoming'], context);
+  const task3 = (await executeCommand('create', ['Task 3', '--status=incoming'], context)) as any;
 
   // Move task3 up twice concurrently
   const [result1, result2] = await Promise.all([
