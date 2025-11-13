@@ -90,11 +90,10 @@ export class GitTagManager {
     metadata?: Record<string, any>,
   ): Promise<TagCreationResult> {
     const timestamp = new Date();
-    const date = timestamp.toISOString().split('T')[0]; // YYYY-MM-DD
-    const timeStr = timestamp.toTimeString() || '00:00:00';
-    const time = (timeStr.split(' ')[0] || '00-00-00').replace(/:/g, '-'); // HH-MM-SS
+    const [isoDate, isoTimeRaw] = timestamp.toISOString().split('T');
+    const sanitizedTime = (isoTimeRaw ?? '00:00:00.000Z').replace(/[:.Z]/g, '-');
 
-    const tag = `${this.options.tagPrefix}-${date}-${time}`;
+    const tag = `${this.options.tagPrefix}-${isoDate}-${sanitizedTime}`;
     const message = this.generateTagMessage(reason, metadata);
 
     try {
@@ -208,7 +207,7 @@ export class GitTagManager {
       await this.validateGitRepository();
 
       const { execSync } = await import('node:child_process');
-      const tagOutput = execSync(`git tag --sort=-version:refname "${this.options.tagPrefix}-*"`, {
+      const tagOutput = execSync(`git tag --list --sort=-version:refname "${this.options.tagPrefix}-*"`, {
         cwd: this.repoRoot,
         encoding: 'utf8',
       });
