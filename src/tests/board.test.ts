@@ -260,7 +260,7 @@ test('search', async (t) => {
 });
 
 test('createTask', async (t) => {
-  const board = makeBoard([{ name: 'Todo', count: 0, limit: null, tasks: [] }]);
+  const board = makeBoard([{ name: 'Incoming', count: 0, limit: null, tasks: [] }]);
   const tempDir = await withTempDir(t);
   const boardPath = path.join(tempDir, 'board.md');
   const tasksDir = path.join(tempDir, 'tasks');
@@ -269,7 +269,7 @@ test('createTask', async (t) => {
 
   const created = await createTask(
     board,
-    'Todo',
+    'Incoming',
     {
       title: 'Draft release notes',
       content: 'Summarize key features for the release',
@@ -280,10 +280,10 @@ test('createTask', async (t) => {
     boardPath,
   );
 
-  const todoColumn = getColumn(board, 'Todo');
+  const incomingColumn = getColumn(board, 'Incoming');
   t.truthy(created.uuid);
-  t.is(todoColumn.tasks.length, 1);
-  t.is(todoColumn.tasks[0]?.title, 'Draft release notes');
+  t.is(incomingColumn.tasks.length, 1);
+  t.is(incomingColumn.tasks[0]?.title, 'Draft release notes');
   const persisted = await getTaskFileByUuid(tasksDir, created.uuid);
   t.truthy(persisted);
   t.regex(persisted!.content, /title: "Draft release notes"/);

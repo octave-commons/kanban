@@ -20,11 +20,11 @@ test('move_up - multiple moves in sequence', async (t) => {
   };
 
   // Create 5 tasks
-  await executeCommand('create', ['Task 1', '--status=Todo'], context);
-  await executeCommand('create', ['Task 2', '--status=Todo'], context);
-  await executeCommand('create', ['Task 3', '--status=Todo'], context);
-  await executeCommand('create', ['Task 4', '--status=Todo'], context);
-  const task5 = (await executeCommand('create', ['Task 5', '--status=Todo'], context)) as any;
+  await executeCommand('create', ['Task 1', '--status=incoming'], context);
+  await executeCommand('create', ['Task 2', '--status=incoming'], context);
+  await executeCommand('create', ['Task 3', '--status=incoming'], context);
+  await executeCommand('create', ['Task 4', '--status=incoming'], context);
+  const task5 = (await executeCommand('create', ['Task 5', '--status=incoming'], context)) as any;
 
   // Move task5 up multiple times to get to position 0
   const result1 = (await executeCommand('move_up', [task5.uuid], context)) as any;
@@ -64,11 +64,11 @@ test('move_down - multiple moves in sequence', async (t) => {
   };
 
   // Create 5 tasks
-  const task1 = (await executeCommand('create', ['Task 1', '--status=Todo'], context)) as any;
-  await executeCommand('create', ['Task 2', '--status=Todo'], context);
-  await executeCommand('create', ['Task 3', '--status=Todo'], context);
-  await executeCommand('create', ['Task 4', '--status=Todo'], context);
-  await executeCommand('create', ['Task 5', '--status=Todo'], context);
+  const task1 = (await executeCommand('create', ['Task 1', '--status=incoming'], context)) as any;
+  await executeCommand('create', ['Task 2', '--status=incoming'], context);
+  await executeCommand('create', ['Task 3', '--status=incoming'], context);
+  await executeCommand('create', ['Task 4', '--status=incoming'], context);
+  await executeCommand('create', ['Task 5', '--status=incoming'], context);
 
   // Move task1 down multiple times to get to position 4
   const result1 = (await executeCommand('move_down', [task1.uuid], context)) as any;
@@ -108,33 +108,29 @@ test('move operations - tasks across different columns', async (t) => {
   };
 
   // Create tasks in different columns
-  await executeCommand('create', ['Todo Task 1', '--status=Todo'], context);
-  const todo2 = (await executeCommand('create', ['Todo Task 2', '--status=Todo'], context)) as any;
-  await executeCommand('create', ['Progress Task 1', '--status=In Progress'], context);
-  const progress2 = (await executeCommand(
-    'create',
-    ['Progress Task 2', '--status=In Progress'],
-    context,
-  )) as any;
-  const done1 = (await executeCommand('create', ['Done Task 1', '--status=Done'], context)) as any;
+  const incoming1 = (await executeCommand('create', ['Incoming Task 1', '--status=incoming'], context)) as any;
+  const incoming2 = (await executeCommand('create', ['Incoming Task 2', '--status=incoming'], context)) as any;
+  await executeCommand('create', ['Icebox Task 1', '--status=icebox'], context);
+  const icebox2 = (await executeCommand('create', ['Icebox Task 2', '--status=icebox'], context)) as any;
 
   // Move tasks within each column
-  const todoResult = (await executeCommand('move_up', [todo2.uuid], context)) as any;
-  t.truthy(todoResult);
-  t.is(todoResult.column, 'Todo');
-  t.is(todoResult.rank, 0);
+  const incomingResult = (await executeCommand('move_up', [incoming2.uuid], context)) as any;
+  t.truthy(incomingResult);
+  t.is(incomingResult.column, 'incoming');
+  t.is(incomingResult.rank, 0);
 
-  const progressResult = (await executeCommand('move_up', [progress2.uuid], context)) as any;
-  t.truthy(progressResult);
-  t.is(progressResult.column, 'In Progress');
-  t.is(progressResult.rank, 0);
+  const iceboxResult = (await executeCommand('move_up', [icebox2.uuid], context)) as any;
+  t.truthy(iceboxResult);
+  t.is(iceboxResult.column, 'icebox');
+  t.is(iceboxResult.rank, 0);
 
-  // Done task should be no-op since it's alone
-  const doneResult = (await executeCommand('move_up', [done1.uuid], context)) as any;
-  t.truthy(doneResult);
-  t.is(doneResult.column, 'Done');
-  t.is(doneResult.rank, 0);
+  // Moving the first incoming task up should be a no-op
+  const noopResult = (await executeCommand('move_up', [incoming1.uuid], context)) as any;
+  t.truthy(noopResult);
+  t.is(noopResult.column, 'incoming');
+  t.is(noopResult.rank, 0);
 });
+
 
 test('move operations - board persistence', async (t) => {
   const tempDir = await withTempDir(t);
@@ -151,9 +147,9 @@ test('move operations - board persistence', async (t) => {
   };
 
   // Create tasks
-  await executeCommand('create', ['Task 1', '--status=Todo'], context);
-  const task2 = (await executeCommand('create', ['Task 2', '--status=Todo'], context)) as any;
-  const task3 = (await executeCommand('create', ['Task 3', '--status=Todo'], context)) as any;
+  await executeCommand('create', ['Task 1', '--status=incoming'], context);
+  const task2 = (await executeCommand('create', ['Task 2', '--status=incoming'], context)) as any;
+  const task3 = (await executeCommand('create', ['Task 3', '--status=incoming'], context)) as any;
 
   // Move task2 up
   const moveResult = (await executeCommand('move_up', [task2.uuid], context)) as any;
@@ -195,7 +191,7 @@ test('move operations - performance with many tasks', async (t) => {
   for (let i = 0; i < 20; i++) {
     const task = (await executeCommand(
       `create`,
-      [`Task ${i + 1}`, '--status=Todo'],
+      [`Task ${i + 1}`, '--status=incoming'],
       context,
     )) as any;
     tasks.push(task);
