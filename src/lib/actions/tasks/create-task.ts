@@ -8,7 +8,9 @@ import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 
 import type { Task, Board, ColumnData } from '../../types.js';
-import { debug } from '../../utils/logger.js';
+import { getLogger } from '@promethean-os/logger';
+
+const logger = getLogger('create-task');
 import { processTemplateContent } from '../../serializers/template-serializer.js';
 
 export type CreateTaskInput = {
@@ -108,9 +110,9 @@ const debugCreateTask = (...params: unknown[]): void => {
 export const createTaskAction = async (config: TaskCreationConfig): Promise<TaskCreationResult> => {
   const { board, column, input, tasksDir, boardPath } = config;
 
-  debug('createTaskAction called!');
-  debugCreateTask('start', { column, title: input.title });
-  debug('createTask params:', { column, title: input.title });
+  logger.debug('createTaskAction called!');
+  logger.debug('start', { column, title: input.title });
+  logger.debug('createTask params:', { column, title: input.title });
 
   validateStartingStatus(column);
 
@@ -296,7 +298,7 @@ export const createTaskAction = async (config: TaskCreationConfig): Promise<Task
   debugCreateTask('maybe refresh index');
   await maybeRefreshIndex(tasksDir);
 
-  debug('Task created successfully:', enrichedTask.uuid);
+  logger.debug('Task created successfully', { uuid: enrichedTask.uuid });
   debugCreateTask('done', enrichedTask.uuid);
 
   return { task: persistedTask, board };

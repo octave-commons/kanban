@@ -264,7 +264,7 @@ export class HealCommand {
     // Analyze system metrics
     const metrics = await this.analyzeSystemMetrics(context);
 
-    if (metrics.wipViolations.length > 0) {
+    if (metrics.wipViolations && metrics.wipViolations.length > 0) {
       criticalIssues.push({
         type: 'wip_violation',
         description: `${metrics.wipViolations.length} columns exceed WIP limits`,
@@ -274,7 +274,7 @@ export class HealCommand {
       recommendations.push(`Address ${metrics.wipViolations.length} WIP limit violations`);
     }
 
-    if (metrics.incompleteTasks.length > 0) {
+    if (metrics.incompleteTasks && metrics.incompleteTasks.length > 0) {
       criticalIssues.push({
         type: 'incomplete_tasks',
         description: `${metrics.incompleteTasks.length} tasks have missing information`,
@@ -284,7 +284,7 @@ export class HealCommand {
       recommendations.push(`Complete ${metrics.incompleteTasks.length} incomplete tasks`);
     }
 
-    if (metrics.duplicateTasks.length > 0) {
+    if (metrics.duplicateTasks && metrics.duplicateTasks.length > 0) {
       criticalIssues.push({
         type: 'duplicate_tasks',
         description: `${metrics.duplicateTasks.length} sets of duplicate tasks found`,
@@ -294,14 +294,14 @@ export class HealCommand {
       recommendations.push(`Resolve ${metrics.duplicateTasks.length} duplicate task groups`);
     }
 
-    if (metrics.boardHealthScore < 70) {
+if (metrics.boardHealthScore && metrics.boardHealthScore < 70) {
       criticalIssues.push({
         type: 'low_health_score',
         description: `Board health score is ${metrics.boardHealthScore}/100`,
         severity: 'medium',
-        suggestedAction: 'Address board health issues',
+        suggestedAction: 'Review and improve board organization',
       });
-      recommendations.push('Improve overall board health');
+      recommendations.push(`Improve board health score from ${metrics.boardHealthScore}/100`);
     }
 
     // Find related scars

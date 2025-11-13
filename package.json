@@ -62,6 +62,7 @@
   },
   "dependencies": {
     "@promethean-os/lmdb-cache": "workspace:*",
+    "@promethean-os/logger": "workspace:*",
     "@promethean-os/markdown": "workspace:*",
     "@promethean-os/utils": "workspace:*",
     "@promethean-os/pantheon": "workspace:*",

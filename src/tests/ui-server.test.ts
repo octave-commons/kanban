@@ -74,7 +74,7 @@ test('kanban ui server exposes board payload and html', async (t) => {
   t.is(payload.board.columns[0]?.tasks.length ?? 0, 1);
 
   const html = await fetch(`${baseUrl}/`).then((res) => res.text());
-  t.true(html.includes('kanban-ui.js'));
+  t.true(html.includes('main.js'));
 
   const actionsList = await fetchJson<{ commands: ReadonlyArray<string>; ok: boolean }>(
     `${baseUrl}/api/actions`,

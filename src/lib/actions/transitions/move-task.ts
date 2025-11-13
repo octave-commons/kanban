@@ -1,6 +1,8 @@
 import type { Board, Task, ColumnData } from '../../types.js';
-import { debug } from '../../utils/logger.js';
+import { getLogger } from '@promethean-os/logger';
 import { writeBoard } from '../../serializers/board.js';
+
+const logger = getLogger('move-task');
 
 export type MoveTaskInput = {
   board: Board;
@@ -21,8 +23,8 @@ const findTaskInBoard = (
   board: Board,
   uuid: string,
 ): { task: Task; column: ColumnData; index: number } | undefined => {
-  debug(`findTaskInBoard: looking for UUID ${uuid}`);
-  debug(
+  logger.debug(`findTaskInBoard: looking for UUID ${uuid}`);
+  logger.debug(
     `findTaskInBoard: board columns:`,
     board.columns.map((c) => ({ name: c.name, taskCount: c.tasks.length })),
   );
@@ -32,7 +34,7 @@ const findTaskInBoard = (
     if (taskIndex >= 0) {
       const task = column.tasks[taskIndex];
       if (task) {
-        debug(
+        logger.debug(
           `findTaskInBoard: found task ${task.title} in column ${column.name} at index ${taskIndex}`,
         );
         return {
@@ -43,7 +45,7 @@ const findTaskInBoard = (
       }
     }
   }
-  debug(`findTaskInBoard: task ${uuid} not found`);
+  logger.debug(`findTaskInBoard: task ${uuid} not found`);
   return undefined;
 };
 

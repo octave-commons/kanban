@@ -13,6 +13,9 @@
     },
     {
       "path": "../lmdb-cache"
+    },
+    {
+      "path": "../logger"
     }
   ]
 }
