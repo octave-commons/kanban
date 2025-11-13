@@ -197,8 +197,8 @@ export function formatTableCell(value: any): string {
 
     // Check if this looks like an array of Task objects
     if (value.length > 0 && typeof value[0] === 'object' && value[0] !== null) {
-      // Check for Task-like objects (has uuid, title, status)
-      if ('uuid' in value[0] && 'title' in value[0]) {
+      // Check for Task-like objects (has uuid or title fields)
+      if ('uuid' in value[0] || 'title' in value[0]) {
         return value
           .map((task: any) => {
             let title = task.title || 'Untitled';

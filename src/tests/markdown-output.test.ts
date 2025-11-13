@@ -89,18 +89,20 @@ test('formatTableCell handles tasks with missing titles', (t) => {
     status: 'todo',
   };
   const result = formatTableCell([taskWithoutTitle]);
-  t.true(result.includes('Untitled (missing-title-...)'));
+  t.true(result.includes('Untitled (missing-...)'));
 });
 
 test('formatTableCell handles tasks with missing UUIDs', (t) => {
+
   const taskWithoutUuid: Task = {
     uuid: '',
     title: 'Task without UUID',
     status: 'todo',
   };
   const result = formatTableCell([taskWithoutUuid]);
-  t.true(result.includes('Task without UUID (unknown)'));
+  t.true(result.includes('Task without UUID (unknown...)'));
 });
+
 
 test('formatTableCell handles nested objects', (t) => {
   const nested = { user: { name: 'test', id: 123 } };
@@ -191,7 +193,7 @@ test('formatTable handles special characters in task titles', (t) => {
   const result = formatTable([column]);
 
   t.true(result.includes('Task with "quotes" & <brackets> and 🚀 emoji'));
-  t.true(result.includes('(special-chars...)'));
+  t.true(result.includes('(special-...)'));
 });
 
 test('formatTable handles very long task titles', (t) => {
@@ -208,10 +210,11 @@ test('formatTable handles very long task titles', (t) => {
     tasks: [longTask],
   };
   const result = formatTable([column]);
-
+ 
   t.true(result.includes(longTitle));
-  t.true(result.includes('(long-title-...)'));
+  t.true(result.includes('(long-tit...)'));
 });
+
 
 test('formatTable handles malformed task objects', (t) => {
   const malformedTask = {
@@ -228,11 +231,12 @@ test('formatTable handles malformed task objects', (t) => {
     tasks: [malformedTask],
   };
   const result = formatTable([column]);
-
+ 
   // Should handle gracefully without crashing
-  t.true(result.includes('Untitled (malformed-...)'));
+  t.true(result.includes('Untitled (malforme...)'));
   t.false(result.includes('[object Object]'));
 });
+
 
 test('formatTable performance with large task arrays', (t) => {
   const largeTaskArray: Task[] = [];
@@ -259,8 +263,8 @@ test('formatTable performance with large task arrays', (t) => {
   t.true(endTime - startTime < 1000, `Format took ${endTime - startTime}ms, expected < 1000ms`);
 
   // Should include all tasks
-  t.true(result.includes('Task 0 (task-0000-...)'));
-  t.true(result.includes('Task 99 (task-0099-...)'));
+  t.true(result.includes('Task 0 (task-000...)'));
+  t.true(result.includes('Task 99 (task-009...)'));
 
   // Should not include [object Object]
   t.false(result.includes('[object Object]'));
