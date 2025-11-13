@@ -113,7 +113,7 @@ test('archiveTask supports dry run mode without touching files', async (t) => {
   t.true(result.success);
   t.truthy(result.archiveLocation);
   t.false(await fileExists(result.archiveLocation!));
-  t.is(ctx.getTask('task-2')?.status, 'todo');
+  t.is(ctx.getTask('task-2')?.status, 'incoming');
 });
 
 test('deleteTask requires confirmation unless forced', async (t) => {
