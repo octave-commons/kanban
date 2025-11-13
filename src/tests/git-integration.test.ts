@@ -6,6 +6,7 @@ type ExecScenario = {
   match: RegExp;
   output?: string;
   error?: Error;
+  reuse?: boolean;
 };
 
 const modulePath = fileURLToPath(new URL('../lib/validation/git-integration.js', import.meta.url));
@@ -16,7 +17,10 @@ const createExecMock = (scenarios: ExecScenario[]) => {
     if (index === -1) {
       throw new Error(`Unexpected command: ${command}`);
     }
-    const scenario = scenarios.splice(index, 1)[0]!;
+    const scenario = scenarios[index]!;
+    if (!scenario.reuse) {
+      scenarios.splice(index, 1);
+    }
     if (scenario.error) {
       throw scenario.error;
     }
@@ -69,11 +73,11 @@ test('GitValidator filters commits by task hints and reports code changes', asyn
 
 test('getRepoInfo and validateRepoState surface warnings for dirty branch', async (t) => {
   const execMock = createExecMock([
-    { match: /git rev-parse --abbrev-ref/, output: 'feature/branch\n' },
-    { match: /git config --get remote\.origin\.url/, error: new Error('no remote') },
-    { match: /git rev-parse HEAD/, output: 'abc123\n' },
-    { match: /git status --porcelain/, output: ' M src/file.ts\n' },
-    { match: /git rev-parse --git-dir/, output: '.git\n' },
+    { match: /git rev-parse --abbrev-ref/, output: 'feature/branch\n', reuse: true },
+    { match: /git config --get remote\.origin\.url/, error: new Error('no remote'), reuse: true },
+    { match: /git rev-parse HEAD/, output: 'abc123\n', reuse: true },
+    { match: /git status --porcelain/, output: ' M src/file.ts\n', reuse: true },
+    { match: /git rev-parse --git-dir/, output: '.git\n', reuse: true },
   ]);
 
   const { GitValidator } = await esmock<typeof import('../lib/validation/git-integration.js')>(
@@ -102,11 +106,11 @@ test('getRepoInfo and validateRepoState surface warnings for dirty branch', asyn
 
 test('validateRepoState fails when not inside a git repository', async (t) => {
   const execMock = createExecMock([
-    { match: /git rev-parse --abbrev-ref/, output: 'main\n' },
-    { match: /git config --get remote\.origin\.url/, output: 'git@example.com:repo.git\n' },
-    { match: /git rev-parse HEAD/, output: 'deadbeef\n' },
-    { match: /git status --porcelain/, output: '' },
-    { match: /git rev-parse --git-dir/, error: new Error('fatal: not a git repository') },
+    { match: /git rev-parse --abbrev-ref/, output: 'main\n', reuse: true },
+    { match: /git config --get remote\.origin\.url/, output: 'git@example.com:repo.git\n', reuse: true },
+    { match: /git rev-parse HEAD/, output: 'deadbeef\n', reuse: true },
+    { match: /git status --porcelain/, output: '', reuse: true },
+    { match: /git rev-parse --git-dir/, error: new Error('fatal: not a git repository'), reuse: true },
   ]);
 
   const { GitValidator } = await esmock<typeof import('../lib/validation/git-integration.js')>(

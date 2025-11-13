@@ -50,9 +50,25 @@ test('A task is created from the provided template', async (t) => {
     '',
   ].join('\n');
   const templatePath = await ensureTemplate(tempDir, template);
-
-  const board = makeBoard([{ name: 'incoming', count: 0, limit: null, tasks: [] }]);
-
+ 
+  const blockingTask = makeTask({
+    uuid: 'blocked-2',
+    title: 'Existing upstream dependency',
+    status: 'incoming',
+    slug: 'existing-upstream-dependency',
+    content: template,
+  });
+  await writeTaskFile(tasksDir, blockingTask, { content: template });
+ 
+  const board = makeBoard([
+    {
+      name: 'incoming',
+      count: 1,
+      limit: null,
+      tasks: [blockingTask],
+    },
+  ]);
+ 
   const created = await createTask(
     board,
     'incoming',
@@ -64,6 +80,7 @@ test('A task is created from the provided template', async (t) => {
     tasksDir,
     boardPath,
   );
+
 
   const blockedPersisted = await getTaskFileByUuid(tasksDir, 'blocked-2');
   t.truthy(blockedPersisted);

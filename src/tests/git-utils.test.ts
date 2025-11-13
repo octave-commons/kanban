@@ -2,43 +2,53 @@
  * Unit tests for GitUtils
  */
 
-import test from 'ava';
+import anyTest, { type TestFn } from 'ava';
 import { promises as fs } from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
+import { execSync } from 'node:child_process';
 import { GitUtils } from '../lib/heal/utils/git-utils.js';
 
-// Mock execSync to avoid actual git operations during tests
-const mockExecSync = test.macro({
-  exec: (t, command: string, output: string, shouldFail = false) => {
-    const { execSync } = await import('node:child_process');
-    
-    if (shouldFail) {
-      t.throws(() => execSync(command));
-    } else {
-      const result = execSync(command);
-      t.is(result.toString().trim(), output);
-    }
-  },
+interface GitUtilsTestContext {
+  testDir: string;
+  tempRoot: string;
+}
+
+const test = anyTest as TestFn<GitUtilsTestContext>;
+
+const createIsolatedRepo = async (): Promise<{ tempRoot: string; repoDir: string }> => {
+  const tempRoot = await fs.mkdtemp(path.join(os.tmpdir(), 'git-utils-'));
+  const repoDir = path.join(tempRoot, 'repo');
+  await fs.mkdir(repoDir);
+
+  execSync('git init', { cwd: repoDir });
+  execSync('git config user.name "Test User"', { cwd: repoDir });
+  execSync('git config user.email "test@example.com"', { cwd: repoDir });
+
+  await fs.writeFile(path.join(repoDir, 'test.txt'), 'test content');
+  execSync('git add test.txt', { cwd: repoDir });
+  execSync('git commit -m "Initial commit"', { cwd: repoDir });
+
+  return { tempRoot, repoDir };
+};
+
+test.beforeEach(async (t) => {
+  const { tempRoot, repoDir } = await createIsolatedRepo();
+  t.context.testDir = repoDir;
+  t.context.tempRoot = tempRoot;
 });
 
-test.before(async (t) => {
-  // Create a temporary directory for testing
-  const testDir = path.join(process.cwd(), 'test-git-utils-temp');
-  await fs.mkdir(testDir, { recursive: true });
-  
-  // Initialize a git repository
-  const { execSync } = await import('node:child_process');
-  execSync('git init', { cwd: testDir });
-  execSync('git config user.name "Test User"', { cwd: testDir });
-  execSync('git config user.email "test@example.com"', { cwd: testDir });
-  
-  // Create initial commit
-  await fs.writeFile(path.join(testDir, 'test.txt'), 'test content');
-  execSync('git add test.txt', { cwd: testDir });
-  execSync('git commit -m "Initial commit"', { cwd: testDir });
-  
-  t.context.testDir = testDir;
+test.afterEach.always(async (t) => {
+  const tempRoot = t.context.tempRoot as string | undefined;
+  if (!tempRoot) return;
+
+  try {
+    await fs.rm(tempRoot, { recursive: true, force: true });
+  } catch {
+    // Ignore cleanup errors
+  }
 });
+
 
 test.after.always(async (t) => {
   // Clean up test directory
@@ -216,7 +226,7 @@ test('getCommitHistory returns commit history', async (t) => {
   t.true(history.length > 0);
   
   if (history.length > 0) {
-    const commit = history[0];
+    const commit = history[0]!;
     t.true(typeof commit.sha === 'string');
     t.true(typeof commit.message === 'string');
     t.true(typeof commit.author === 'string');
@@ -272,8 +282,10 @@ test('stash creates stash', async (t) => {
   const testDir = t.context.testDir as string;
   const gitUtils = new GitUtils(testDir);
   
-  // Create a dirty working directory
   const testFile = path.join(testDir, 'stash-test.txt');
+  await fs.writeFile(testFile, 'initial content');
+  await gitUtils.addFiles(['stash-test.txt']);
+  await gitUtils.commit('Add stash test fixture');
   await fs.writeFile(testFile, 'stashed content');
   
   const result = await gitUtils.stash('Test stash');
@@ -286,8 +298,10 @@ test('stashPop applies stashed changes', async (t) => {
   const testDir = t.context.testDir as string;
   const gitUtils = new GitUtils(testDir);
   
-  // First create a stash
   const testFile = path.join(testDir, 'stash-pop-test.txt');
+  await fs.writeFile(testFile, 'initial content for pop');
+  await gitUtils.addFiles(['stash-pop-test.txt']);
+  await gitUtils.commit('Add stash pop test file');
   await fs.writeFile(testFile, 'stashed content for pop');
   await gitUtils.stash('Test stash for pop');
   
