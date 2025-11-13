@@ -22,23 +22,23 @@ test('e2e - complete workflow with move operations', async (t) => {
   // Phase 1: Create initial tasks
   const task1 = (await executeCommand(
     'create',
-    ['Initial Task 1', '--status=Todo'],
+    ['Initial Task 1', '--status=incoming'],
     context,
   )) as any;
   const task2 = (await executeCommand(
     'create',
-    ['Initial Task 2', '--status=Todo'],
+    ['Initial Task 2', '--status=incoming'],
     context,
   )) as any;
   const task3 = (await executeCommand(
     'create',
-    ['Initial Task 3', '--status=Todo'],
+    ['Initial Task 3', '--status=incoming'],
     context,
   )) as any;
 
   // Verify initial board state
   const initialBoardContent = await readFile(boardPath, 'utf8');
-  t.true(initialBoardContent.includes('## Todo'));
+  t.true(initialBoardContent.includes('## Incoming'));
   t.true(initialBoardContent.includes('Initial Task 1'));
   t.true(initialBoardContent.includes('Initial Task 2'));
   t.true(initialBoardContent.includes('Initial Task 3'));
@@ -64,12 +64,10 @@ test('e2e - complete workflow with move operations', async (t) => {
   t.is(move4Result.rank, 2);
 
   // Phase 3: Add more tasks to different columns
-  const task4 = (await executeCommand(
-    'create',
-    ['Progress Task 1', '--status=In Progress'],
-    context,
-  )) as any;
-  const task5 = (await executeCommand('create', ['Done Task 1', '--status=Done'], context)) as any;
+  const task4 = (await executeCommand('create', ['Progress Task 1', '--status=incoming'], context)) as any;
+  await executeCommand('update-status', [task4.uuid, 'In Progress'], context);
+  const task5 = (await executeCommand('create', ['Done Task 1', '--status=incoming'], context)) as any;
+  await executeCommand('update-status', [task5.uuid, 'Done'], context);
 
   // Phase 4: Move tasks in different columns
   const progressMove = (await executeCommand('move_up', [task4.uuid], context)) as any;
@@ -82,7 +80,7 @@ test('e2e - complete workflow with move operations', async (t) => {
 
   // Phase 5: Verify final board state
   const finalBoardContent = await readFile(boardPath, 'utf8');
-  t.true(finalBoardContent.includes('## Todo'));
+  t.true(finalBoardContent.includes('## Incoming'));
   t.true(finalBoardContent.includes('## In Progress'));
   t.true(finalBoardContent.includes('## Done'));
 
@@ -124,7 +122,7 @@ test('e2e - large scale move operations', async (t) => {
   for (let i = 0; i < 50; i++) {
     const task = (await executeCommand(
       'create',
-      [`Task ${i + 1}`, '--status=Todo'],
+      [`Task ${i + 1}`, '--status=incoming'],
       context,
     )) as any;
     tasks.push(task);
@@ -146,7 +144,7 @@ test('e2e - large scale move operations', async (t) => {
 
   // Verify board file is still valid
   const boardContent = await readFile(boardPath, 'utf8');
-  t.true(boardContent.includes('## Todo'));
+  t.true(boardContent.includes('## Incoming'));
 
   // Count occurrences of "Task" to ensure all tasks are present
   const taskMatches = boardContent.match(/Task \d+/g);
@@ -168,13 +166,13 @@ test('e2e - move operations with task updates', async (t) => {
   };
 
   // Create tasks
-  await executeCommand('create', ['Original Task 1', '--status=Todo'], context);
+  await executeCommand('create', ['Original Task 1', '--status=incoming'], context);
   const task2 = (await executeCommand(
     'create',
-    ['Original Task 2', '--status=Todo'],
+    ['Original Task 2', '--status=incoming'],
     context,
   )) as any;
-  await executeCommand('create', ['Original Task 3', '--status=Todo'], context);
+  await executeCommand('create', ['Original Task 3', '--status=incoming'], context);
 
   // Move task2 up
   const moveResult = (await executeCommand('move_up', [task2.uuid], context)) as any;
@@ -210,12 +208,12 @@ test('e2e - move operations across workflow transitions', async (t) => {
   };
 
   // Create task and move through workflow
-  const task = (await executeCommand('create', ['Workflow Task', '--status=Todo'], context)) as any;
+  const task = (await executeCommand('create', ['Workflow Task', '--status=incoming'], context)) as any;
 
   // Move within Todo (no-op since single task)
   const todoMove = (await executeCommand('move_up', [task.uuid], context)) as any;
   t.truthy(todoMove);
-  t.is(todoMove.column, 'Todo');
+  t.is(todoMove.column, 'Incoming');
 
   // Move to In Progress
   await executeCommand('update-status', [task.uuid, 'In Progress'], context);
@@ -226,11 +224,8 @@ test('e2e - move operations across workflow transitions', async (t) => {
   t.is(progressMove.column, 'In Progress');
 
   // Add another task to In Progress
-  const task2 = (await executeCommand(
-    'create',
-    ['Another Task', '--status=In Progress'],
-    context,
-  )) as any;
+  const task2 = (await executeCommand('create', ['Another Task', '--status=incoming'], context)) as any;
+  await executeCommand('update-status', [task2.uuid, 'In Progress'], context);
 
   // Now moves should work within In Progress
   const progressMove2 = (await executeCommand('move_up', [task2.uuid], context)) as any;
@@ -247,7 +242,7 @@ test('e2e - move operations across workflow transitions', async (t) => {
 
   // Verify final board state
   const boardContent = await readFile(boardPath, 'utf8');
-  t.true(boardContent.includes('## Todo'));
+  t.true(boardContent.includes('## Incoming'));
   t.true(boardContent.includes('## In Progress'));
   t.true(boardContent.includes('## Done'));
   t.true(boardContent.includes('Workflow Task'));

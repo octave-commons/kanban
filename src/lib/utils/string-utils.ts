@@ -23,7 +23,24 @@ export const stripTrailingCount = (value: string): string =>
 
 export const normalizeColumnDisplayName = (value: string): string => {
   const trimmed = stripTrailingCount(value.trim());
-  return trimmed.length > 0 ? trimmed : 'Todo';
+  if (trimmed.length === 0) {
+    return 'Todo';
+  }
+
+  const hasUpperCase = /[A-Z]/.test(trimmed);
+  if (hasUpperCase) {
+    return trimmed;
+  }
+
+  const normalized = trimmed.replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim();
+  if (normalized.length === 0) {
+    return 'Todo';
+  }
+
+  return normalized
+    .split(' ')
+    .map((token) => (token.length > 0 ? token.charAt(0).toUpperCase() + token.slice(1) : token))
+    .join(' ');
 };
 
 export const columnKey = (name: string): string =>
