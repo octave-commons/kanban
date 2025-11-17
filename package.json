@@ -49,7 +49,7 @@
     "kanban": "dist/cli.js"
   },
   "scripts": {
-    "build": "pnpm run build:dist && cp -r src/nbb dist/nbb",
+    "build": "pnpm run clean && pnpm run build:dist && cp -r src/nbb dist/nbb",
     "build:cljs": "shadow-cljs release kanban-frontend",
     "build:docs": "typedoc --options typedoc.json",
     "dev:cljs": "shadow-cljs watch kanban-frontend",

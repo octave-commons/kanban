@@ -1378,6 +1378,7 @@ export const pushToTasks = async (
     moved = 0,
     statusUpdated = 0;
   const existingTasks = await readTasksFolder(tasksDir);
+
   const existingByUuid = new Map(existingTasks.map((task) => [task.uuid, task]));
 
   // Create a map of existing file bases to their UUIDs, checking actual files on disk
@@ -1759,8 +1760,10 @@ export const createTask = async (
   validateStartingStatus(column);
 
   const targetColumn = ensureColumn(board, column);
+  console.log('after ensureColumn', column, board.columns.map((c) => c.name));
 
   const existingTasks = await readTasksFolder(tasksDir);
+  console.log('readTasksFolder count', existingTasks.length, 'for', input.title, 'in', column);
   const existingById = new Map(existingTasks.map((task) => [task.uuid, task]));
   // *** CRITICAL FIX: Duplicate Task Detection ***
   // Check for existing tasks with the same title in the same column
@@ -1773,9 +1776,9 @@ export const createTask = async (
       task.title.trim().toLowerCase() === normalizedTitle &&
       task.status.trim().toLowerCase() === targetColumnName,
   );
+  console.log('existingTaskInColumn result', existingTaskInColumn?.uuid);
 
   if (existingTaskInColumn) {
-    // Return the exact same task object to ensure content consistency
     return existingTaskInColumn;
   }
 
@@ -1783,8 +1786,10 @@ export const createTask = async (
   const boardTaskInColumn = targetColumn.tasks.find(
     (task) => task.title.trim().toLowerCase() === normalizedTitle,
   );
+  console.log('boardTaskInColumn result', boardTaskInColumn?.uuid);
 
   if (boardTaskInColumn) {
+
     // Always try to get full content from existing tasks (file-based)
     const fullTask = existingTasks.find((t) => t.uuid === boardTaskInColumn.uuid);
     if (fullTask) {
@@ -1937,9 +1942,12 @@ export const createTask = async (
   targetColumn.tasks = [...targetColumn.tasks, enriched];
   targetColumn.count = targetColumn.tasks.length;
 
+  console.log('about to persist', column, enriched.uuid);
   await persistBoardAndTasks(board, boardPath, tasksDir);
+  console.log('finished persist', column, enriched.uuid);
   return enriched;
 };
+
 
 export const archiveTask = async (
   board: Board,

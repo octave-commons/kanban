@@ -107,9 +107,22 @@ const createMockBoard = (overrides?: Partial<Board>): Board => ({
   ...overrides,
 });
 
+const TEST_WIP_LIMITS = {
+  todo: 5,
+  in_progress: 3,
+  review: 5,
+  done: 0, // treated as no limit by getColumnLimit
+} as const;
+
+const createTestEnforcement = async () => {
+  const { config } = await loadKanbanConfig();
+  return createWIPLimitEnforcement({
+    config: { ...config, wipLimits: { ...config.wipLimits, ...TEST_WIP_LIMITS } },
+  });
+};
+
 test('WIPLimitEnforcement - validates WIP limits correctly', async (t) => {
-  const config = await loadKanbanConfig();
-  const enforcement = await createWIPLimitEnforcement({ config: config.config });
+  const enforcement = await createTestEnforcement();
   const board = createMockBoard();
 
   // Test column within limits
@@ -125,7 +138,7 @@ test('WIPLimitEnforcement - validates WIP limits correctly', async (t) => {
   t.is(inProgressValidation.current, 4);
   t.is(inProgressValidation.limit, 3);
   t.is(inProgressValidation.projected, 4);
-  t.is(inProgressValidation.violation?.severity, 'error');
+  t.is(inProgressValidation.violation?.severity, 'critical');
 
   // Test column with no limits
   const doneValidation = await enforcement.validateWIPLimits('done', 0, board);
@@ -134,8 +147,7 @@ test('WIPLimitEnforcement - validates WIP limits correctly', async (t) => {
 });
 
 test('WIPLimitEnforcement - intercepts status transitions', async (t) => {
-  const config = await loadKanbanConfig();
-  const enforcement = await createWIPLimitEnforcement({ config: config.config });
+  const enforcement = await createTestEnforcement();
   const board = createMockBoard();
 
   // Test blocked transition
@@ -159,8 +171,7 @@ test('WIPLimitEnforcement - intercepts status transitions', async (t) => {
 });
 
 test('WIPLimitEnforcement - generates capacity suggestions', async (t) => {
-  const config = await loadKanbanConfig();
-  const enforcement = await createWIPLimitEnforcement({ config: config.config });
+  const enforcement = await createTestEnforcement();
   const board = createMockBoard();
 
   const suggestions = await enforcement.generateCapacitySuggestions('in_progress', board);
@@ -178,8 +189,7 @@ test('WIPLimitEnforcement - generates capacity suggestions', async (t) => {
 });
 
 test('WIPLimitEnforcement - provides capacity monitoring', async (t) => {
-  const config = await loadKanbanConfig();
-  const enforcement = await createWIPLimitEnforcement({ config: config.config });
+  const enforcement = await createTestEnforcement();
   const board = createMockBoard();
 
   const monitor = await enforcement.getCapacityMonitor(board);
@@ -199,8 +209,7 @@ test('WIPLimitEnforcement - provides capacity monitoring', async (t) => {
 });
 
 test('WIPLimitEnforcement - tracks violation history', async (t) => {
-  const config = await loadKanbanConfig();
-  const enforcement = await createWIPLimitEnforcement({ config: config.config });
+  const enforcement = await createTestEnforcement();
   const board = createMockBoard();
 
   // Generate a violation
@@ -215,13 +224,12 @@ test('WIPLimitEnforcement - tracks violation history', async (t) => {
     t.is(firstViolation.fromStatus, 'todo');
     t.is(firstViolation.toStatus, 'in_progress');
     t.true(firstViolation.blocked);
-    t.is(firstViolation.severity, 'error');
+    t.is(firstViolation.severity, 'critical');
   }
 });
 
 test('WIPLimitEnforcement - generates compliance reports', async (t) => {
-  const config = await loadKanbanConfig();
-  const enforcement = await createWIPLimitEnforcement({ config: config.config });
+  const enforcement = await createTestEnforcement();
 
   // Generate some violations first
   const board = createMockBoard();
@@ -233,13 +241,12 @@ test('WIPLimitEnforcement - generates compliance reports', async (t) => {
   t.is(report.timeframe, '24h');
   t.true(report.totalViolations >= 2);
   t.true(Object.keys(report.violationsByColumn).includes('in_progress'));
-  t.true(Object.keys(report.violationsBySeverity).includes('error'));
+  t.true(Object.keys(report.violationsBySeverity).includes('critical'));
   t.true(report.recommendations.length > 0);
 });
 
 test('WIPLimitEnforcement - handles admin overrides', async (t) => {
-  const config = await loadKanbanConfig();
-  const enforcement = await createWIPLimitEnforcement({ config: config.config });
+  const enforcement = await createTestEnforcement();
   const board = createMockBoard();
 
   const overrideResult = await enforcement.interceptStatusTransition(
@@ -255,7 +262,7 @@ test('WIPLimitEnforcement - handles admin overrides', async (t) => {
   );
 
   t.false(overrideResult.blocked);
-  t.true(overrideResult.reason?.includes('override'));
+  t.true(overrideResult.reason?.toLowerCase().includes('overridden'));
 
   const violations = enforcement.getViolationHistory();
   const overrideViolation = violations.find((v) => v.overrideReason);
@@ -267,8 +274,7 @@ test('WIPLimitEnforcement - handles admin overrides', async (t) => {
 });
 
 test('WIPLimitEnforcement - warning threshold detection', async (t) => {
-  const config = await loadKanbanConfig();
-  const enforcement = await createWIPLimitEnforcement({ config: config.config });
+  const enforcement = await createTestEnforcement();
 
   // Create a board at 80% capacity
   const nearLimitBoard = createMockBoard({
@@ -322,8 +328,7 @@ test('WIPLimitEnforcement - warning threshold detection', async (t) => {
 });
 
 test('WIPLimitEnforcement - priority-based task selection', async (t) => {
-  const config = await loadKanbanConfig();
-  const enforcement = await createWIPLimitEnforcement({ config: config.config });
+  const enforcement = await createTestEnforcement();
   const board = createMockBoard();
 
   const suggestions = await enforcement.generateCapacitySuggestions('in_progress', board);

@@ -9,7 +9,7 @@ import { withTempDir, makeBoard } from '../test-utils/helpers.js';
 // Avoid expensive index refresh during unit tests
 process.env.KANBAN_SKIP_INDEX = '1';
 
-test('bulk import operations do not create duplicates', async (t) => {
+test.serial('bulk import operations do not create duplicates', async (t) => {
   const tempDir = await withTempDir(t);
   const boardPath = path.join(tempDir, 'board.md');
   const tasksDir = path.join(tempDir, 'tasks');
@@ -31,13 +31,7 @@ test('bulk import operations do not create duplicates', async (t) => {
   // Import all tasks
   const createdTasks: any[] = [];
   for (const taskData of bulkTasks) {
-    const task = await createTask(
-      board,
-      'incoming',
-      taskData,
-      tasksDir,
-      boardPath,
-    );
+    const task = await createTask(board, 'incoming', taskData, tasksDir, boardPath);
     createdTasks.push(task);
   }
 
@@ -77,7 +71,7 @@ test('bulk import operations do not create duplicates', async (t) => {
   );
 });
 
-test('bulk import with allowed columns still permits duplicate titles', async (t) => {
+test.serial('bulk import with allowed columns still permits duplicate titles', async (t) => {
   const tempDir = await withTempDir(t);
   const boardPath = path.join(tempDir, 'board.md');
   const tasksDir = path.join(tempDir, 'tasks');
@@ -86,6 +80,7 @@ test('bulk import with allowed columns still permits duplicate titles', async (t
 
   const board = makeBoard([]);
 
+  console.log('second test before first create');
   // Create first task in incoming
   const task1 = await createTask(
     board,
@@ -94,8 +89,10 @@ test('bulk import with allowed columns still permits duplicate titles', async (t
     tasksDir,
     boardPath,
   );
+  console.log('second test after first create');
 
   // Create second task in icebox with same title
+  console.log('second test before second create');
   const task2 = await createTask(
     board,
     'icebox',
@@ -103,6 +100,7 @@ test('bulk import with allowed columns still permits duplicate titles', async (t
     tasksDir,
     boardPath,
   );
+  console.log('second test after second create');
 
   // Basic checks - tasks should exist and have different UUIDs
   t.truthy(task1, 'First task should exist');

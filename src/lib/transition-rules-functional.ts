@@ -574,6 +574,9 @@ export const evaluateCustomCheck = async (
   return await evaluateCustomRule(state, check.impl, [], task, board);
 };
 
+const formatClojureString = (value: unknown): string =>
+  value === undefined || value === null ? 'nil' : JSON.stringify(String(value));
+
 export const evaluateCustomRule = async (
   state: TransitionRulesEngineState,
   ruleImpl: string,
@@ -611,17 +614,17 @@ export const evaluateCustomRule = async (
       ${dslCode}
 
       ;; Convert JavaScript objects to Clojure maps for evaluation
-      (def task-clj {:uuid "${task.uuid}"
-                     :title "${task.title}"
-                     :priority "${task.priority}"
-                     :content "${task.content || ''}"
-                     :status "${task.status}"
+      (def task-clj {:uuid ${formatClojureString(task.uuid)}
+                     :title ${formatClojureString(task.title)}
+                     :priority ${formatClojureString(task.priority)}
+                     :content ${formatClojureString(task.content || '')}
+                     :status ${formatClojureString(task.status)}
                      :estimates {:complexity ${task.estimates?.complexity || 999}}
                      :storyPoints ${task.storyPoints || 0}
                      :labels [${(task.labels || []).map((l) => `"${l}"`).join(' ')}]})
 
       (def board-clj {:columns [${board.columns
-        .map((col) => `{:name "${col.name}" :limit ${col.limit || 0} :tasks []}`)
+        .map((col) => `{:name "${col.name}" :limit ${col.limit ?? 'nil'} :tasks []}`)
         .join(' ')}]})
 
       ;; Evaluate rule implementation with converted objects

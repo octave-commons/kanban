@@ -8,7 +8,7 @@ import {
   getTaskOrder,
   generateRandomUuid,
   withTempDir,
-} from './helpers/cli-test-utils.js';
+} from '../test-utils/cli-test-utils.js';
 
 const FIXTURES_PATH = path.join(__dirname, 'fixtures');
 
@@ -198,7 +198,7 @@ test('edge case: board with only empty columns', async (t) => {
 
 test('edge case: maximum column size', async (t) => {
   // Create a board with many tasks to test performance limits
-  const { createLargeBoard } = await import('./helpers/cli-test-utils.js');
+  const { createLargeBoard } = await import('../test-utils/cli-test-utils.js');
   const largeFixture = await createLargeBoard(200); // 200 tasks
   
   const tempDir = await withTempDir(t);

@@ -106,20 +106,20 @@ test('createTask allows same title in different columns', async (t) => {
     boardPath,
   );
 
-  // Create task with same title in ready column
-  const readyTask = await createTask(
+  // Create task with same title in icebox column (allowed starting status)
+  const iceboxTask = await createTask(
     board,
-    'ready',
-    { title: taskTitle, content: 'Ready content' },
+    'icebox',
+    { title: taskTitle, content: 'Icebox content' },
     tasksDir,
     boardPath,
   );
 
   // Should create different tasks for different columns
-  t.not(incomingTask.uuid, readyTask.uuid, 'Different columns should have different tasks');
-  t.is(incomingTask.title, readyTask.title, 'Titles should be the same');
+  t.not(incomingTask.uuid, iceboxTask.uuid, 'Different columns should have different tasks');
+  t.is(incomingTask.title, iceboxTask.title, 'Titles should be the same');
   t.is(incomingTask.status, 'incoming', 'First task should be in incoming');
-  t.is(readyTask.status, 'ready', 'Second task should be in ready');
+  t.is(iceboxTask.status, 'icebox', 'Second task should be in icebox');
 });
 
 test('createTask handles case-insensitive title matching', async (t) => {

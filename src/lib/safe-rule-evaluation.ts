@@ -56,7 +56,10 @@ const loadValidationFunctions = async (): Promise<ValidationFunctions> => {
     const url = await import('url');
 
     const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
-    const validationPath = path.resolve(__dirname, '../clojure/validation.clj');
+    const validationPath = path.resolve(
+      __dirname,
+      '../nbb/promethean/kanban/validation.cljs',
+    );
     const functions = (await loadFile(validationPath)) as Record<string, Function>;
 
     if (
@@ -177,7 +180,7 @@ const loadClojureContext = async (dslPath: string): Promise<void> => {
 
   // Load the validation file content first
   const __dirname = path.dirname(url.fileURLToPath(import.meta.url));
-  const validationPath = path.resolve(__dirname, '../clojure/validation.clj');
+  const validationPath = path.resolve(__dirname, '../nbb/promethean/kanban/validation.cljs');
   const validationContent = fs.readFileSync(validationPath, 'utf8');
 
   await loadString(validationContent, {

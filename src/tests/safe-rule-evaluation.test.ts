@@ -11,7 +11,7 @@ const dslPath = path.resolve(process.cwd(), 'dist/nbb/test_rules.cljs');
 const mockTask: TaskFM = {
   id: 'test-uuid',
   title: 'Test Task',
-  status: 'open',
+  status: 'incoming',
   priority: 'medium',
   owner: 'test',
   labels: [],
@@ -23,7 +23,7 @@ const mockTask: TaskFM = {
 const mockTaskForBoard: Task = {
   uuid: 'test-uuid',
   title: 'Test Task',
-  status: 'open',
+  status: 'incoming',
   priority: 'medium',
   labels: [],
   created_at: new Date().toISOString(),

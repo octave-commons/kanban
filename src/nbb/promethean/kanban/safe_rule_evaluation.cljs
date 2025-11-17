@@ -83,7 +83,7 @@
 
 (defn load-clojure-context [dsl-path]
   (let [__dirname (path/dirname (.-fileURLToPath url))
-        validation-path (path/resolve __dirname "../clojure/validation.clj")
+        validation-path (path/resolve __dirname "./validation.cljs")
         validation-content (fs/readFileSync validation-path "utf8")]
     (nbb/load-string validation-content #js {:context "cljs.user" :print (fn [])})
     (when (and dsl-path (.existsSync fs dsl-path))

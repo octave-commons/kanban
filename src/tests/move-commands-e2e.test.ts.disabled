@@ -8,7 +8,7 @@ import {
   getTaskOrder,
   verifyBoardPersistence,
   measurePerformance,
-} from './helpers/cli-test-utils.js';
+} from '../test-utils/cli-test-utils.js';
 import { withTempDir, writeTaskFile } from '../test-utils/helpers.js';
 import { loadBoard, regenerateBoard, pushToTasks, syncBoardAndTasks } from '../../lib/kanban.js';
 

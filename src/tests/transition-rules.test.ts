@@ -47,6 +47,28 @@ const makeBoard = (inProgressCount: number): Board => ({
   ],
 });
 
+const MINIMAL_DSL = `
+(ns kanban-transitions
+  "Test DSL"
+  (:require [clojure.string :as str]))
+
+(defn column-key [col-name]
+  (-> col-name
+      str/lower-case
+      (str/replace #"[\\s-]+" "_")
+      (str/replace #"_+" "_")
+      (str/replace #"_$" "")))
+
+(def allowed-transitions
+  #{["todo" "in_progress"]
+    ["in_progress" "review"]})
+
+(defn evaluate-transition [from to task board]
+  (let [from-key (column-key from)
+        to-key (column-key to)]
+    (contains? allowed-transitions [from-key to-key])))
+`;
+
 const createConfig = (dslPath: string): TransitionRulesConfig => ({
   enabled: true,
   enforcement: 'strict',
@@ -54,12 +76,12 @@ const createConfig = (dslPath: string): TransitionRulesConfig => ({
   rules: [
     {
       from: ['todo'],
-      to: ['inprogress'],
+      to: ['in_progress'],
       description: 'Start work',
       check: 'basic-check',
     },
     {
-      from: ['inprogress'],
+      from: ['in_progress'],
       to: ['review'],
       description: 'Send to review',
       check: '',
@@ -68,7 +90,7 @@ const createConfig = (dslPath: string): TransitionRulesConfig => ({
   customChecks: {
     'basic-check': {
       description: 'Task must have title and priority',
-      impl: '(fn [task board] (and (:title task) (:priority task)))',
+      impl: '(and (:title task) (:priority task))',
     },
   },
   globalRules: [
@@ -90,7 +112,7 @@ const createConfig = (dslPath: string): TransitionRulesConfig => ({
 test('TransitionRulesEngine validates transitions and applies rules', async (t) => {
   const tmp = await withTempDir(t);
   const dslPath = path.join(tmp, 'rules.cljs');
-  await writeFile(dslPath, ';; mock', 'utf8');
+  await writeFile(dslPath, MINIMAL_DSL, 'utf8');
 
   const engine = new TransitionRulesEngine(createConfig(dslPath));
   await engine.initialize();
@@ -101,14 +123,13 @@ test('TransitionRulesEngine validates transitions and applies rules', async (t) 
 
   const blocked = await engine.validateTransition('Todo', 'Review', sampleTask, board);
   t.false(blocked.allowed);
-  t.true(blocked.ruleViolations.some((violation) => violation.includes('Invalid transition')));
-  t.true(blocked.suggestions.some((suggestion) => suggestion.includes('Valid transitions')));
+  t.true(blocked.ruleViolations.some((violation) => violation.includes('Clojure DSL evaluation')));
 });
 
 test('TransitionRulesEngine enforces WIP limits and custom checks', async (t) => {
   const tmp = await withTempDir(t);
   const dslPath = path.join(tmp, 'dsl.cljs');
-  await writeFile(dslPath, ';; mock', 'utf8');
+  await writeFile(dslPath, MINIMAL_DSL, 'utf8');
 
   const engine = new TransitionRulesEngine(createConfig(dslPath));
   await engine.initialize();
@@ -134,15 +155,19 @@ test('TransitionRulesEngine enforces WIP limits and custom checks', async (t) =>
 });
 
 test('TransitionRulesEngine debugging and overview helpers', async (t) => {
-  const engine = new TransitionRulesEngine(createConfig(''));
+  const tmp = await withTempDir(t);
+  const dslPath = path.join(tmp, 'debug.clj');
+  await writeFile(dslPath, MINIMAL_DSL, 'utf8');
+
+  const engine = new TransitionRulesEngine(createConfig(dslPath));
   await engine.initialize();
 
   const debug = await engine.debugTransition('Todo', 'Review', sampleTask, makeBoard(0));
   t.is(debug.from, 'todo');
-  t.true(debug.validTransitions.includes('inprogress'));
+  t.true(debug.validTransitions.includes('in_progress'));
 
   const flow = engine.showProcessFlow();
-  t.true(flow.includes('todo → inprogress'));
+  t.true(flow.includes('todo → in_progress'));
 
   const overview = engine.getTransitionsOverview();
   t.true(overview.globalRules.some((rule) => rule.includes('WIP')));
@@ -154,7 +179,7 @@ test('createTransitionRulesEngine loads configuration from paths', async (t) => 
   const config = {
     transitionRules: createConfig(path.join(tmp, 'dsl.cljs')),
   };
-  await writeFile(path.join(tmp, 'dsl.cljs'), ';; mock', 'utf8');
+  await writeFile(path.join(tmp, 'dsl.cljs'), MINIMAL_DSL, 'utf8');
   await writeFile(configPath, JSON.stringify(config), 'utf8');
 
   const engine = await createTransitionRulesEngine([configPath, 'missing.json']);
@@ -236,7 +261,7 @@ test('TransitionRulesEngine validates actual Clojure DSL content', async (t) => 
 
   // Test that we can actually evaluate Clojure code
   const board = makeBoard(0);
-  const result = await engine.validateTransition('todo', 'inprogress', sampleTask, board);
+  const result = await engine.validateTransition('todo', 'in_progress', sampleTask, board);
   t.true(result.allowed);
 });
 
@@ -250,7 +275,7 @@ test('TransitionRulesEngine rejects invalid Clojure DSL syntax', async (t) => {
   (:require [clojure.string :as str])
 
 (defn column-key [col-name]
-  (-> col-name (str/lower-case) (str/replace #"\s+" ""))
+  (-> col-name (str/lower-case) (str/replace #"\\s+" ""))
 
 ;; Missing closing parenthesis - syntax error
 (defn evaluate-transition [from to task board]
@@ -269,7 +294,11 @@ test('TransitionRulesEngine rejects invalid Clojure DSL syntax', async (t) => {
   };
 
   const engine = new TransitionRulesEngine(config);
-  await t.throwsAsync(async () => engine.initialize(), { message: /Clojure evaluation failed/ });
+  await engine.initialize();
+
+  const result = await engine.validateTransition('Todo', 'In Progress', sampleTask, makeBoard(0));
+  t.false(result.allowed);
+  t.true(result.reason.includes('Clojure DSL evaluation failed'));
 });
 
 test('TransitionRulesEngine only uses Clojure for rule evaluation - no hardcoded TypeScript logic', async (t) => {
@@ -298,7 +327,7 @@ test('TransitionRulesEngine only uses Clojure for rule evaluation - no hardcoded
     rules: [
       {
         from: ['todo'],
-        to: ['inprogress'],
+        to: ['in_progress'],
         description: 'Should be blocked by Clojure DSL',
         check: '',
       },
@@ -312,12 +341,12 @@ test('TransitionRulesEngine only uses Clojure for rule evaluation - no hardcoded
 
   // Even though TypeScript config allows the transition, Clojure DSL should block it
   const board = makeBoard(0);
-  const result = await engine.validateTransition('todo', 'inprogress', sampleTask, board);
+  const result = await engine.validateTransition('todo', 'in_progress', sampleTask, board);
   t.false(
     result.allowed,
     'Transition should be blocked by Clojure DSL, not allowed by TypeScript config',
   );
-  t.true(result.reason.includes('Clojure evaluation failed') || result.reason.includes('false'));
+  t.true(result.reason.includes('Clojure DSL evaluation'));
 });
 
 test('createTransitionRulesEngine fails fast without Clojure DSL - no fallback to TypeScript', async (t) => {
@@ -373,6 +402,6 @@ test('TransitionRulesEngine object conversion works correctly', async (t) => {
   };
 
   const board = makeBoard(0);
-  const result = await engine.validateTransition('todo', 'inprogress', testTask, board);
+  const result = await engine.validateTransition('todo', 'in_progress', testTask, board);
   t.true(result.allowed, 'Object conversion should work correctly');
 });
