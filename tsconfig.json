@@ -9,13 +9,13 @@
   "include": ["src"],
   "references": [
     {
-      "path": "../markdown"
+      "path": "../../packages/markdown"
     },
     {
-      "path": "../lmdb-cache"
+      "path": "../../packages/lmdb-cache"
     },
     {
-      "path": "../logger"
+      "path": "../../packages/logger"
     }
   ]
 }
