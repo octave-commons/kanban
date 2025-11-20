@@ -37,7 +37,8 @@ export async function runPantheonComputation<TRequest, TResult>(
 
   const orchestrator = makeOrchestrator({
     now: () => Date.now(),
-    log: (message, meta) => options.logger?.({ level: 'debug', message, meta }),
+    log: (message: string, meta?: unknown) =>
+      options.logger?.({ level: 'debug', message, meta }),
     context,
     tools,
     llm,
@@ -50,7 +51,7 @@ export async function runPantheonComputation<TRequest, TResult>(
     name: `${options.actorName}-behavior`,
     mode: options.mode ?? 'persistent',
     description: 'Auto-generated behavior for Kanban Pantheon integration',
-    plan: async ({ goal, context: messages }) => {
+    plan: async ({ goal, context: messages }: { goal: string; context: Message[] }) => {
       const result = await options.compute({
         goal,
         context: messages,
@@ -85,7 +86,7 @@ export async function runPantheonComputation<TRequest, TResult>(
   const actor = await actorState.spawn(actorScript, options.goal);
 
   let payload: TResult | undefined;
-  const unsubscribe = messageBus.subscribe((msg) => {
+  const unsubscribe = messageBus.subscribe((msg: { from: string; to: string; content: string }) => {
     if (msg.to === 'user') {
       try {
         payload = JSON.parse(msg.content) as TResult;

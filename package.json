@@ -1,6 +1,6 @@
 {
   "name": "@promethean-os/kanban",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Automation for local markdown kanban and process-as-code. Functional TS, native ESM, no side effects.",
   "type": "module",
   "main": "./dist/index.js",

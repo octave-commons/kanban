@@ -16,6 +16,12 @@
     },
     {
       "path": "../../packages/logger"
+    },
+    {
+      "path": "../../packages/pantheon"
+    },
+    {
+      "path": "../../packages/pantheon/packages/core"
     }
   ]
 }
