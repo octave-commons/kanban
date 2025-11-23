@@ -18,10 +18,10 @@
       "path": "../../packages/logger"
     },
     {
-      "path": "../../packages/pantheon"
+      "path": "../../experimental/pantheon"
     },
     {
-      "path": "../../packages/pantheon/packages/core"
+      "path": "../../experimental/pantheon/packages/core"
     }
   ]
 }
