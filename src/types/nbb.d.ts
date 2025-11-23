@@ -1,17 +1,4 @@
 declare module 'nbb' {
-  interface NbbOptions {
-    [key: string]: any;
-  }
-
-  function evalString(code: string, opts?: NbbOptions): Promise<any>;
-  function loadFile(path: string, opts?: NbbOptions): Promise<any>;
-  function loadString(code: string, opts?: NbbOptions): Promise<any>;
-
-  const nbb: {
-    evalString: typeof evalString;
-    loadFile: typeof loadFile;
-    loadString: typeof loadString;
-  };
-
-  export = nbb;
+  export function loadFile(path: string): Promise<Record<string, unknown>>;
+  export function loadString(code: string, opts?: Record<string, unknown>): Promise<unknown>;
 }
