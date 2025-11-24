@@ -37,3 +37,4 @@ coverage/
 .cache/
 *.cache
 test-git-workflow-temp/
+stryker-tmp/
