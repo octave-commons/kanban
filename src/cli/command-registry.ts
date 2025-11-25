@@ -121,7 +121,7 @@ export const registerCommand = (
   name: string,
   context: CliContext,
   jsonRequested: boolean,
-  executor: (command: string, args: ReadonlyArray<string>, context: CliContext) => Promise<unknown>,
+  executor: (command: string, args: ReadonlyArray<string>) => Promise<unknown>,
 ): void => {
   const description = COMMAND_DESCRIPTIONS[name] || name;
   target
