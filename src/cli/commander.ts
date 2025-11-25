@@ -51,13 +51,15 @@ export const runCommanderCli = async (argv: string[]): Promise<void> => {
   const coreCommands = new Set<string>(['init', ...BASIC_COMMANDS]);
   for (const name of coreCommands) {
     const group = commandToGroup.get(name);
+    const executor = (cmd: string, args: ReadonlyArray<string>) =>
+      executeCommand(cmd, args, context);
     // Root alias
-    registerCommand(program, name, context, jsonRequested, executeCommand);
+    registerCommand(program, name, jsonRequested, executor);
     // Grouped alias
     if (group) {
       const target = groupCommands.get(group);
       if (target) {
-        registerCommand(target, name, context, jsonRequested, executeCommand);
+        registerCommand(target, name, jsonRequested, executor);
       }
     }
   }
