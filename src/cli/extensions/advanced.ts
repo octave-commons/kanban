@@ -7,7 +7,6 @@ import {
   registerCommand,
 } from '../command-registry.js';
 import type { CliExtension } from '../plugins.js';
-import type { CliContext } from '../types.js';
 
 const ensureGroupCommands = (program: Command): Map<string, Command> => {
   const groupCommands = new Map<string, Command>();
