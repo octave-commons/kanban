@@ -29,9 +29,8 @@ export const registerCli: CliExtension = async ({ program, context, execute, jso
   const groupCommands = ensureGroupCommands(program);
   const advancedCommands = AVAILABLE_COMMANDS.filter((cmd) => !BASIC_COMMANDS.has(cmd));
 
-  const makeExecutor = (ctx: CliContext) =>
-    (cmd: string, args: ReadonlyArray<string>) => execute(cmd, [...args], ctx) as Promise<unknown>;
-  const executor = makeExecutor(context);
+  const executor = (cmd: string, args: ReadonlyArray<string>) =>
+    execute(cmd, [...args]) as Promise<unknown>;
 
   for (const name of advancedCommands) {
     const group = commandToGroup.get(name);
