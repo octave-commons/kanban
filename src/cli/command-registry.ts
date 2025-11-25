@@ -89,6 +89,7 @@ export const BASIC_COMMANDS = new Set<string>([
   'update-status',
   'move_up',
   'move_down',
+  'init',
 ]);
 
 export const buildCommandToGroupMap = (): Map<string, string> => {
