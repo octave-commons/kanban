@@ -4,7 +4,15 @@
     "rootDir": "src",
     "outDir": "dist",
     "composite": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "paths": {
+      "@promethean-os/kanban-transition-rules": [
+        "../../packages/kanban-transition-rules/src/index"
+      ],
+      "@promethean-os/kanban-transition-rules/*": ["../../packages/kanban-transition-rules/src/*"],
+      "@promethean-os/kanban-plugin-heal": ["../../packages/kanban-plugin-heal/src/index"],
+      "@promethean-os/kanban-plugin-heal/*": ["../../packages/kanban-plugin-heal/src/*"]
+    }
   },
   "include": ["src"],
   "references": [
@@ -22,6 +30,15 @@
     },
     {
       "path": "../../experimental/pantheon/packages/core"
+    },
+    {
+      "path": "../../packages/kanban-transition-rules"
+    },
+    {
+      "path": "../../packages/kanban-sdk"
+    },
+    {
+      "path": "../../packages/kanban-plugin-heal"
     }
   ]
 }

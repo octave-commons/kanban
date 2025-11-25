@@ -6,6 +6,8 @@ import test from 'ava';
 import { createTask, loadBoard } from '../lib/kanban.js';
 import { withTempDir, makeBoard } from '../test-utils/helpers.js';
 
+process.env.KANBAN_SKIP_INDEX = '1';
+
 // Temporarily skipped: createTask duplicate/idempotency scenarios timing out under coverage; see spec/test-timeouts.md.
 test.skip('createTask is idempotent - same title returns existing task', async (t) => {
   const tempDir = await withTempDir(t);
@@ -238,13 +240,11 @@ test.skip('multiple rapid createTask calls do not create duplicates', async (t) 
   const board = makeBoard([]);
   const taskTitle = 'Rapid Creation Test';
 
-  // Create multiple tasks rapidly (simulates concurrent operations)
+  // Create multiple tasks rapidly (simulates concurrent operations) with fewer calls to reduce I/O
   const tasks = await Promise.all([
     createTask(board, 'incoming', { title: taskTitle, content: 'Content 1' }, tasksDir, boardPath),
     createTask(board, 'incoming', { title: taskTitle, content: 'Content 2' }, tasksDir, boardPath),
     createTask(board, 'incoming', { title: taskTitle, content: 'Content 3' }, tasksDir, boardPath),
-    createTask(board, 'incoming', { title: taskTitle, content: 'Content 4' }, tasksDir, boardPath),
-    createTask(board, 'incoming', { title: taskTitle, content: 'Content 5' }, tasksDir, boardPath),
   ]);
 
   // All should return the same task

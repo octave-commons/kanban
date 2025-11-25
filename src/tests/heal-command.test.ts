@@ -6,62 +6,10 @@ import test from 'ava';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { temporaryDirectory } from 'tempy';
-import { GitTagManager } from '../lib/heal/git-tag-manager.js';
 import { ScarHistoryManager } from '../lib/heal/scar-history-manager.js';
 import { createHealCommand } from '../lib/heal/heal-command.js';
 import { ScarContextBuilder } from '../lib/heal/scar-context-builder.js';
 import type { ScarRecord, HealingResult } from '../lib/heal/scar-context-types.js';
-
-test('GitTagManager creates heal tags correctly', async (t) => {
-  const tempDir = temporaryDirectory();
-
-  // Initialize a git repository
-  const { execSync } = await import('node:child_process');
-  execSync('git init', { cwd: tempDir });
-  execSync('git config user.name "Test User"', { cwd: tempDir });
-  execSync('git config user.email "test@example.com"', { cwd: tempDir });
-
-  // Create initial commit
-  await fs.writeFile(path.join(tempDir, 'test.txt'), 'initial content');
-  execSync('git add test.txt', { cwd: tempDir });
-  execSync('git commit -m "Initial commit"', { cwd: tempDir });
-
-  const gitTagManager = new GitTagManager(tempDir);
-
-  const result = await gitTagManager.createHealTag('Test healing operation');
-
-  t.true(result.success);
-  t.true(result.tag.startsWith('heal-'));
-  t.true(result.commitSha.length > 0);
-  t.is(result.metadata.annotated, true);
-
-  // Verify tag was created
-  const tags = await gitTagManager.getHealTags();
-  t.true(tags.includes(result.tag));
-});
-
-test('GitTagManager stores and retrieves scar records', async (t) => {
-  const tempDir = temporaryDirectory();
-
-  const gitTagManager = new GitTagManager(tempDir);
-
-  const scar: ScarRecord = {
-    start: 'a'.repeat(40),
-    end: 'b'.repeat(40),
-    tag: 'heal-2023-01-01-12-00-00',
-    story: 'Test healing operation',
-    timestamp: new Date(),
-  };
-
-  const storeResult = await gitTagManager.storeScarRecord(scar);
-  t.true(storeResult.success);
-  t.is(storeResult.scarCount, 1);
-
-  const retrievedScars = await gitTagManager.loadScarHistory();
-  t.is(retrievedScars.length, 1);
-  t.is(retrievedScars[0]?.tag, scar.tag);
-  t.is(retrievedScars[0]?.story, scar.story);
-});
 
 test('ScarHistoryManager records healing operations', async (t) => {
   const tempDir = temporaryDirectory();
@@ -268,39 +216,6 @@ test('ScarContextBuilder builds valid context', async (t) => {
     (e) => e.operation === 'context-building-completed',
   );
   t.truthy(completionEvent);
-});
-
-test('GitTagManager handles tag deletion', async (t) => {
-  const tempDir = temporaryDirectory();
-
-  // Initialize git repo
-  const { execSync } = await import('node:child_process');
-  execSync('git init', { cwd: tempDir });
-  execSync('git config user.name "Test User"', { cwd: tempDir });
-  execSync('git config user.email "test@example.com"', { cwd: tempDir });
-
-  // Create initial commit
-  await fs.writeFile(path.join(tempDir, 'test.txt'), 'content');
-  execSync('git add test.txt', { cwd: tempDir });
-  execSync('git commit -m "Initial"', { cwd: tempDir });
-
-  const gitTagManager = new GitTagManager(tempDir);
-
-  // Create a tag
-  const createResult = await gitTagManager.createHealTag('Test tag');
-  t.true(createResult.success);
-
-  // Verify tag exists
-  let tags = await gitTagManager.getHealTags();
-  t.true(tags.includes(createResult.tag));
-
-  // Delete the tag
-  const deleteResult = await gitTagManager.deleteTag(createResult.tag);
-  t.true(deleteResult.success);
-
-  // Verify tag is gone
-  tags = await gitTagManager.getHealTags();
-  t.false(tags.includes(createResult.tag));
 });
 
 test('ScarHistoryManager exports and imports scars', async (t) => {

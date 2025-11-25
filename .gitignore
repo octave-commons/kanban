@@ -1,10 +1,9 @@
 # Build artifacts
 dist/
 build/
-lib/
 *.tsbuildinfo
 
-# Dependencies 
+# Dependencies
 node_modules/
 *.log
 *.pid

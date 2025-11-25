@@ -568,6 +568,12 @@ export class ScarContextBuilder {
       tags: [],
     };
 
+    const gitDisabled =
+      process.env.KANBAN_DISABLE_GIT === 'true' || process.env.KANBAN_DISABLE_GIT === '1';
+    if (gitDisabled) {
+      return analysis;
+    }
+
     try {
       // Try to get git information (this is a simplified implementation)
       // In a real implementation, you'd use git commands or a git library

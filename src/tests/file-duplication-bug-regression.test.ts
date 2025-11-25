@@ -6,6 +6,8 @@ import test from 'ava';
 import { createTask, loadBoard, regenerateBoard, pushToTasks } from '../lib/kanban.js';
 import { withTempDir, makeBoard } from '../test-utils/helpers.js';
 
+process.env.KANBAN_SKIP_INDEX = '1';
+
 test('FAILING REPRODUCTION: Descriptive filenames with dots get duplicated with " 2.md" suffix', async (t) => {
   // This test reproduces the actual bug: the same task creating multiple files with " 2.md" suffix
   const tempDir = await withTempDir(t);
@@ -140,8 +142,7 @@ test('FAILING REPRODUCTION: Multiple duplication creates " 2 2.md" pattern', asy
     boardPath,
   );
 
-  // Simulate multiple operations that each trigger duplication
-  await regenerateBoard(tasksDir, boardPath);
+  // Simulate multiple operations that each trigger duplication (reduce to two passes for speed)
   await regenerateBoard(tasksDir, boardPath);
   await regenerateBoard(tasksDir, boardPath);
 

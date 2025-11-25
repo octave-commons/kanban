@@ -1,7 +1,10 @@
-{"extends": "./tsconfig.json", "compilerOptions": {"noUnusedLocals": false},
-
-  "rootDir": "src",
-    "outDir": "dist",
-
-  "include": ["src"]
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noUnusedLocals": false,
+    "rootDir": "src",
+    "outDir": "dist"
+  },
+  "include": ["src"],
+  "references": [{ "path": "../../packages/kanban-plugin-heal" }]
 }

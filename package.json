@@ -49,12 +49,12 @@
     "kanban": "dist/cli.js"
   },
   "scripts": {
-    "build": "pnpm run build:dist && cp -r src/nbb dist/nbb",
+    "build": "pnpm --filter @promethean-os/kanban-plugin-heal build && pnpm run build:dist && cp -r src/nbb dist/nbb",
     "build:cljs": "shadow-cljs release kanban-frontend",
     "build:docs": "typedoc --options typedoc.json",
     "dev:cljs": "shadow-cljs watch kanban-frontend",
     "prepack": "pnpm run build && pnpm run build:cljs",
-    "test": "NODE_NO_WARNINGS=1 pnpm run build && ava --config=ava.config.local.mjs",
+    "test": "pnpm --filter @promethean-os/kanban-plugin-heal build && NODE_NO_WARNINGS=1 pnpm run build && ava --config=ava.config.local.mjs",
     "test:coverage": "c8 pnpm run test",
     "coverage": "c8 --reporter=html --reporter=text pnpm run test",
     "test:mutation": "stryker run",

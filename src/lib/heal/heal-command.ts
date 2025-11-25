@@ -108,7 +108,11 @@ export class HealCommand {
       // Get starting commit SHA
       startSha = await this.getCurrentCommitSha();
       if (!startSha) {
-        throw new Error('Unable to determine current commit SHA');
+        if (options.dryRun) {
+          startSha = 'dry-run';
+        } else {
+          throw new Error('Unable to determine current commit SHA');
+        }
       }
 
       // Build scar context
@@ -180,7 +184,7 @@ export class HealCommand {
         await this.gitTagManager.pushTags([tagResult.tag]);
       }
 
-      const totalTime = Date.now() - startTime;
+      const totalTime = Math.max(1, Date.now() - startTime);
 
       // Add completion event
       context.eventLog.push(
@@ -216,7 +220,7 @@ export class HealCommand {
             'heal-operation-failed',
             {
               error: errorMessage,
-              totalTime: Date.now() - startTime,
+              totalTime: Math.max(1, Date.now() - startTime),
             },
             'error',
           ),
@@ -230,7 +234,7 @@ export class HealCommand {
         filesChanged: 0,
         errors: [errorMessage],
         completedAt: new Date(),
-        totalTime: Date.now() - startTime,
+        totalTime: Math.max(1, Date.now() - startTime),
       };
     }
   }

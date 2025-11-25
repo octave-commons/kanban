@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "logs/tests/.89511fa5e1d12d6f0b8113580cfa1fba90414863-audit.json",
+    "files": [
+        {
+            "date": 1764100561051,
+            "name": "logs/tests/kanban-2025-11-25T19-56-01-033Z-2025-11-25.log",
+            "hash": "e93928ad4f510ed08ef335c3a75e7b99baa7934aa655718277cebd5fe7690009"
+        }
+    ],
+    "hashType": "sha256"
+}
