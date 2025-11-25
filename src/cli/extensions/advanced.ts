@@ -24,7 +24,7 @@ const ensureGroupCommands = (program: Command): Map<string, Command> => {
   return groupCommands;
 };
 
-export const registerCli: CliExtension = async ({ program, context, execute, jsonRequested }) => {
+export const registerCli: CliExtension = async ({ program, context: _context, execute, jsonRequested }) => {
   const commandToGroup = buildCommandToGroupMap();
   const groupCommands = ensureGroupCommands(program);
   const advancedCommands = AVAILABLE_COMMANDS.filter((cmd) => !BASIC_COMMANDS.has(cmd));
