@@ -3,11 +3,7 @@ import { loadKanbanConfig } from '../board/config.js';
 import { printJSONL } from '../lib/jsonl.js';
 import { processSync } from '../process/sync.js';
 import { docguard } from '../process/docguard.js';
-import {
-  AVAILABLE_COMMANDS,
-  executeCommand,
-  type CliContext,
-} from './command-handlers.js';
+import { executeCommand, type CliContext } from './command-handlers.js';
 import {
   BASIC_COMMANDS,
   COMMAND_GROUPS,
