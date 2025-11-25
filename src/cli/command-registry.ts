@@ -132,7 +132,7 @@ export const registerCommand = (
     .allowUnknownOption(true)
     .action(async (cmdArgs: string[] = []) => {
       try {
-        const result = await executor(name, cmdArgs, context);
+        const result = await executor(name, cmdArgs);
         printResult(result, name, jsonRequested, cmdArgs);
       } catch (error) {
         // Avoid importing CommandUsageError/CommandNotFoundError to keep this helper lightweight
