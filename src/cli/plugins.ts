@@ -10,7 +10,7 @@ export type CliExtension = (opts: {
   jsonRequested: boolean;
 }) => Promise<void> | void;
 
-const EXTENSION_MODULES = ['@promethean-os/kanban-plugin-heal'];
+const EXTENSION_MODULES = ['@promethean-os/kanban-plugin-heal', './extensions/advanced.js'];
 
 export const loadCliExtensions = async (
   program: Command,
