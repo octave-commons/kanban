@@ -17,6 +17,8 @@ export {
   analyzeTask,
   rewriteTask,
   breakdownTask,
+  writeBoard,
+  columnKey,
 } from './lib/kanban.js';
 export { loadKanbanConfig } from './board/config.js';
 

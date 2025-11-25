@@ -11,6 +11,10 @@ export {
 
 export { readTasksFolder, toFrontmatter } from './task-files.js';
 
+export { writeBoard } from './board-serialization.js';
+
+export { columnKey } from './kanban-utils.js';
+
 export {
   validateStartingStatus,
   updateStatus,
