@@ -49,18 +49,18 @@
     "kanban": "dist/cli.js"
   },
   "scripts": {
-    "build": "pnpm run clean && pnpm run build:dist && cp -r src/nbb dist/nbb",
+    "build": "pnpm run build:dist && cp -r src/nbb dist/nbb",
     "build:cljs": "shadow-cljs release kanban-frontend",
     "build:docs": "typedoc --options typedoc.json",
     "dev:cljs": "shadow-cljs watch kanban-frontend",
     "prepack": "pnpm run build && pnpm run build:cljs",
-    "test": "pnpm run build && ava --config=ava.config.local.mjs",
+    "test": "NODE_NO_WARNINGS=1 pnpm run build && ava --config=ava.config.local.mjs",
     "test:coverage": "c8 pnpm run test",
     "coverage": "c8 --reporter=html --reporter=text pnpm run test",
     "test:mutation": "stryker run",
     "test:mutation:debug": "stryker run --logLevel debug",
     "test:mutation:dry": "ava",
-    "build:dist": "tsc -b tsconfig.build.json --force",
+    "build:dist": "tsc -b tsconfig.build.json",
     "clean": "rm -rf ./dist tsconfig.tsbuildinfo"
   },
   "dependencies": {
@@ -70,6 +70,10 @@
     "@promethean-os/utils": "workspace:*",
     "@promethean-os/pantheon": "workspace:*",
     "@promethean-os/pantheon-core": "workspace:*",
+    "@promethean-os/kanban-sdk": "workspace:*",
+    "@promethean-os/kanban-transition-rules": "workspace:*",
+    "@promethean-os/kanban-plugin-content": "workspace:*",
+    "@promethean-os/kanban-plugin-heal": "workspace:*",
     "chokidar": "^4.0.1",
     "globby": "^14.0.2",
     "gray-matter": "^4.0.3",
