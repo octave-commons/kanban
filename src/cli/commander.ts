@@ -48,7 +48,7 @@ export const runCommanderCli = async (argv: string[]): Promise<void> => {
     groupCommands.set(group, groupCmd);
   }
 
-  const coreCommands = new Set<string>(['init', ...BASIC_COMMANDS]);
+  const coreCommands = new Set<string>(BASIC_COMMANDS);
   for (const name of coreCommands) {
     const group = commandToGroup.get(name);
     const executor = (cmd: string, args: ReadonlyArray<string>) =>
