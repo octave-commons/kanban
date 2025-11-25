@@ -20,7 +20,7 @@
     "build": "tsc -p tsconfig.json",
     "clean": "rimraf dist",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "pnpm run build && node --test dist/tests/git-tag-manager.test.js"
+    "test": "pnpm run build && KANBAN_DISABLE_GIT=true KANBAN_REDIRECT_CONSOLE=true KANBAN_LOG_FILE_ENABLED=true KANBAN_LOG_DIR=logs/tests KANBAN_LOG_CONSOLE=false node --test dist/tests/git-tag-manager.test.js"
   },
   "dependencies": {
     "@promethean-os/kanban-sdk": "workspace:*",
