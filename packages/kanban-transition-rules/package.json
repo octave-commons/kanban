@@ -44,7 +44,7 @@
     "build": "pnpm run clean && tsc -b tsconfig.json --force && cp -r src/nbb dist/nbb && cp -r tests/nbb dist/tests/nbb",
     "clean": "rimraf dist",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "pnpm run build && ava --config ../../config/ava.config.mjs"
+    "test": "pnpm run build && KANBAN_DISABLE_GIT=true KANBAN_REDIRECT_CONSOLE=true KANBAN_LOG_FILE_ENABLED=true KANBAN_LOG_DIR=logs/tests KANBAN_LOG_CONSOLE=false ava --config ../../config/ava.config.mjs"
   },
   "dependencies": {
     "@promethean-os/kanban-sdk": "workspace:*",
