@@ -118,7 +118,6 @@ const printResult = (
 export const registerCommand = (
   target: Command,
   name: string,
-  context: CliContext,
   jsonRequested: boolean,
   executor: (command: string, args: ReadonlyArray<string>) => Promise<unknown>,
 ): void => {
