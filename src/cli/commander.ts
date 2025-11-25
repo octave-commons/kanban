@@ -1,5 +1,4 @@
 import { Command } from 'commander';
-import { Command } from 'commander';
 import { loadKanbanConfig } from '../board/config.js';
 import { printJSONL } from '../lib/jsonl.js';
 import { processSync } from '../process/sync.js';
