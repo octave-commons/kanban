@@ -35,16 +35,13 @@ const handleInit: CommandHandler = async (args) => {
 
     requiredFields: ['title', 'status', 'priority'],
 
-    statusValues: ['incoming', 'ready', 'todo', 'in_progress', 'review', 'done'],
+    statusValues: ['todo', 'doing', 'done'],
 
     priorityValues: ['P0', 'P1', 'P2', 'P3'],
 
     wipLimits: {
-      incoming: 999,
-      ready: 10,
-      todo: 5,
-      in_progress: 3,
-      review: 3,
+      todo: 10,
+      doing: 5,
       done: 999,
     },
 
@@ -57,13 +54,13 @@ const handleInit: CommandHandler = async (args) => {
       },
       {
         title: 'Create project documentation',
-        status: 'incoming',
+        status: 'doing',
         priority: 'P1',
         content: 'Add README, setup instructions, and project overview',
       },
       {
         title: 'Implement core feature',
-        status: 'incoming',
+        status: 'doing',
         priority: 'P2',
         content: 'Build the main functionality for the project',
       },
