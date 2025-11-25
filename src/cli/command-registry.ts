@@ -1,7 +1,6 @@
 import { Command } from 'commander';
 import { printJSONL } from '../lib/jsonl.js';
 import { printMarkdown } from '../lib/markdown-output.js';
-import type { CliContext } from './types.js';
 
 export const detectOutputType = (
   cmd: string,
