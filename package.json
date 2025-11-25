@@ -22,7 +22,7 @@
   "bugs": {
     "url": "https://github.com/riatzukiza/promethean/issues"
   },
-  "homepage": "https://github.com/riatzukiza/promethean/tree/main/packages/kanban",
+  "homepage": "https://github.com/riatzukiza/promethean/tree/main/cli/kanban",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
