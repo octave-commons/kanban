@@ -8,9 +8,9 @@ import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
-import { GitWorkflow } from '../lib/heal/git-workflow.js';
-import type { ScarContext } from '../lib/heal/scar-context-types.js';
-import type { Task } from '../lib/testing-transition/types.js';
+import { GitWorkflow } from '../lib/heal/git-workflow.ts';
+import type { ScarContext } from '../lib/heal/scar-context-types.ts';
+import type { Task } from '../lib/testing-transition/types.ts';
 
 interface GitWorkflowTestContext {
   testDir: string;
@@ -149,7 +149,6 @@ test.afterEach.always(async (t) => {
   await cleanupTempRoot(t.context.tempRoot as string | undefined);
 });
 
-
 test('GitWorkflow constructor initializes correctly', (t) => {
   const testDir = t.context.testDir as string;
   const workflow = new GitWorkflow({ repoPath: testDir });
@@ -283,7 +282,7 @@ Test task content for integration testing.
   // Verify tags were created
   const tags = await workflow['gitTagManager'].getHealTags();
   t.true(tags.length >= 3);
-  t.true(tags.every((tag) => tag.startsWith('heal-')));
+  t.true(tags.every((tag: string) => tag.startsWith('heal-')));
 });
 
 test('rollback functionality', async (t) => {
@@ -336,11 +335,10 @@ test('commitTasksDirectory handles no changes', async (t) => {
   const context = createMockScarContext('Test no changes', 'heal-test-005');
 
   const result = await workflow.commitTasksDirectory(context);
- 
+
   t.true(result.success);
   t.true(result.data?.includes('No changes to commit in tasks directory'));
 });
-
 
 test('commitKanbanBoard handles no changes', async (t) => {
   const testDir = t.context.testDir as string;
@@ -348,14 +346,12 @@ test('commitKanbanBoard handles no changes', async (t) => {
 
   const context = createMockScarContext('Test no board changes', 'heal-test-006');
   const tasks: Task[] = [];
-  
+
   const result = await workflow.commitKanbanBoard(context, tasks);
- 
- 
+
   t.true(result.success);
   t.true(result.data?.includes('No changes to commit in kanban board'));
 });
-
 
 test('commitDependencies handles no changes', async (t) => {
   const testDir = t.context.testDir as string;
@@ -364,11 +360,10 @@ test('commitDependencies handles no changes', async (t) => {
   const context = createMockScarContext('Test no dep changes', 'heal-test-007');
 
   const result = await workflow.commitDependencies(context);
- 
+
   t.true(result.success);
   t.true(result.data?.includes('No changes to commit in dependencies'));
 });
-
 
 test('createPreOpTag creates tag correctly', async (t) => {
   const testDir = t.context.testDir as string;
@@ -377,12 +372,11 @@ test('createPreOpTag creates tag correctly', async (t) => {
   const currentState = await workflow.getCurrentState();
 
   const result = await workflow.createPreOpTag('heal-test-008', currentState.headSha);
- 
+
   t.true(result.success);
   t.true(typeof result.data?.tag === 'string');
   t.true(result.data?.tag?.startsWith('heal-'));
 });
-
 
 test('createPostOpTag creates tag correctly', async (t) => {
   const testDir = t.context.testDir as string;
@@ -391,12 +385,11 @@ test('createPostOpTag creates tag correctly', async (t) => {
   const currentState = await workflow.getCurrentState();
 
   const result = await workflow.createPostOpTag('heal-test-009', currentState.headSha);
- 
+
   t.true(result.success);
   t.true(typeof result.data?.tag === 'string');
   t.true(result.data?.tag?.startsWith('heal-'));
 });
-
 
 test('createFinalTag creates tag correctly', async (t) => {
   const testDir = t.context.testDir as string;
@@ -405,12 +398,11 @@ test('createFinalTag creates tag correctly', async (t) => {
   const currentState = await workflow.getCurrentState();
 
   const result = await workflow.createFinalTag('heal-test-010', currentState.headSha);
- 
+
   t.true(result.success);
   t.true(typeof result.data?.tag === 'string');
   t.true(result.data?.tag?.startsWith('heal-'));
 });
-
 
 test('rollback with invalid SHA fails gracefully', async (t) => {
   const testDir = t.context.testDir as string;
@@ -444,11 +436,10 @@ test('workflow with custom configuration', async (t) => {
   const context = createMockScarContext('Custom config test', 'custom-heal-001');
 
   const result = await workflow.preOperation(context);
- 
+
   t.true(result.success);
   t.true(result.tag?.startsWith('custom-heal-'));
 });
-
 
 test('createGitWorkflow factory function', (t) => {
   const workflow = GitWorkflow.createGitWorkflow({

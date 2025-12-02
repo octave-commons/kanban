@@ -7,7 +7,7 @@ import { promises as fs } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
-import { GitUtils } from '../../../cli/kanban/src/lib/heal/utils/git-utils.js';
+import { GitUtils } from '../lib/heal/utils/git-utils.ts';
 
 interface GitUtilsTestContext {
   testDir: string;

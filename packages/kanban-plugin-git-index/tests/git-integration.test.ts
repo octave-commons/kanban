@@ -9,7 +9,7 @@ type ExecScenario = {
   reuse?: boolean;
 };
 
-const modulePath = fileURLToPath(new URL('../lib/validation/git-integration.js', import.meta.url));
+const modulePath = fileURLToPath(new URL('../lib/validation/git-integration.ts', import.meta.url));
 
 const createExecMock = (scenarios: ExecScenario[]) => {
   return (command: string) => {
@@ -30,11 +30,11 @@ const createExecMock = (scenarios: ExecScenario[]) => {
 
 test('GitValidator filters commits by task hints and reports code changes', async (t) => {
   const gitLogOutput = [
-    "1111111|Fix security bug TASK-123|Alice|2025-11-11T10:00:00Z",
+    '1111111|Fix security bug TASK-123|Alice|2025-11-11T10:00:00Z',
     'src/lib/security.ts',
     'docs/readme.md',
     '',
-    "2222222|Misc cleanup|Bob|2025-11-10T12:00:00Z",
+    '2222222|Misc cleanup|Bob|2025-11-10T12:00:00Z',
     'docs/changelog.md',
     '',
   ].join('\n');
@@ -45,7 +45,7 @@ test('GitValidator filters commits by task hints and reports code changes', asyn
   ]);
 
   const { GitValidator, hasTaskCodeChanges } = await esmock<
-    typeof import('../lib/validation/git-integration.js')
+    typeof import('../lib/validation/git-integration.ts')
   >(modulePath, {
     'node:child_process': {
       execSync: execMock,
@@ -80,7 +80,7 @@ test('getRepoInfo and validateRepoState surface warnings for dirty branch', asyn
     { match: /git rev-parse --git-dir/, output: '.git\n', reuse: true },
   ]);
 
-  const { GitValidator } = await esmock<typeof import('../lib/validation/git-integration.js')>(
+  const { GitValidator } = await esmock<typeof import('../lib/validation/git-integration.ts')>(
     modulePath,
     {
       'node:child_process': {
@@ -99,21 +99,29 @@ test('getRepoInfo and validateRepoState surface warnings for dirty branch', asyn
   const state = await validator.validateRepoState();
   t.true(state.valid);
   t.deepEqual(state.errors, []);
-  t.true(state.warnings.some((msg) => msg.includes('uncommitted')));
-  t.true(state.warnings.some((msg) => msg.includes('feature/branch')));
-  t.true(state.warnings.some((msg) => msg.includes('No remote')));
+  t.true(state.warnings.some((msg: string) => msg.includes('uncommitted')));
+  t.true(state.warnings.some((msg: string) => msg.includes('feature/branch')));
+  t.true(state.warnings.some((msg: string) => msg.includes('No remote')));
 });
 
 test('validateRepoState fails when not inside a git repository', async (t) => {
   const execMock = createExecMock([
     { match: /git rev-parse --abbrev-ref/, output: 'main\n', reuse: true },
-    { match: /git config --get remote\.origin\.url/, output: 'git@example.com:repo.git\n', reuse: true },
+    {
+      match: /git config --get remote\.origin\.url/,
+      output: 'git@example.com:repo.git\n',
+      reuse: true,
+    },
     { match: /git rev-parse HEAD/, output: 'deadbeef\n', reuse: true },
     { match: /git status --porcelain/, output: '', reuse: true },
-    { match: /git rev-parse --git-dir/, error: new Error('fatal: not a git repository'), reuse: true },
+    {
+      match: /git rev-parse --git-dir/,
+      error: new Error('fatal: not a git repository'),
+      reuse: true,
+    },
   ]);
 
-  const { GitValidator } = await esmock<typeof import('../lib/validation/git-integration.js')>(
+  const { GitValidator } = await esmock<typeof import('../lib/validation/git-integration.ts')>(
     modulePath,
     {
       'node:child_process': {
@@ -126,7 +134,7 @@ test('validateRepoState fails when not inside a git repository', async (t) => {
   const validator = new GitValidator('/repo');
   const state = await validator.validateRepoState();
   t.false(state.valid);
-  t.true(state.errors.some((msg) => msg.includes('git repository')));
+  t.true(state.errors.some((msg: string) => msg.includes('git repository')));
 });
 
 test('getCommitFiles returns files and hasSecurityFileChanges detects secure paths', async (t) => {
@@ -134,7 +142,7 @@ test('getCommitFiles returns files and hasSecurityFileChanges detects secure pat
     { match: /git show --name-only/, output: 'security/auth.ts\nREADME.md\n' },
   ]);
 
-  const { GitValidator } = await esmock<typeof import('../lib/validation/git-integration.js')>(
+  const { GitValidator } = await esmock<typeof import('../lib/validation/git-integration.ts')>(
     modulePath,
     {
       'node:child_process': {
@@ -161,12 +169,10 @@ test('getCommitFiles returns files and hasSecurityFileChanges detects secure pat
 });
 
 test('hasTaskCodeChanges degrades gracefully when git log fails', async (t) => {
-  const execMock = createExecMock([
-    { match: /git log/, error: new Error('git failure') },
-  ]);
+  const execMock = createExecMock([{ match: /git log/, error: new Error('git failure') }]);
 
   const { hasTaskCodeChanges } = await esmock<
-    typeof import('../lib/validation/git-integration.js')
+    typeof import('../lib/validation/git-integration.ts')
   >(modulePath, {
     'node:child_process': {
       execSync: execMock,

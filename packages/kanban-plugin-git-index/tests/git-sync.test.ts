@@ -22,9 +22,9 @@ test('KanbanGitSync handles push, pull, and status flows', async (t) => {
   const statusState = createStatus();
   let stashPushed = false;
   let stashPopped = false;
-  const modulePath = fileURLToPath(new URL('../lib/git-sync.js', import.meta.url));
+  const modulePath = fileURLToPath(new URL('../lib/git-sync.ts', import.meta.url));
 
-  const { KanbanGitSync } = await esmock<typeof import('../lib/git-sync.js')>(modulePath, {
+  const { KanbanGitSync } = await esmock<typeof import('../lib/git-sync.ts')>(modulePath, {
     'simple-git': {
       simpleGit: () => ({
         checkIsRepo: async () => true,
@@ -78,8 +78,8 @@ test('KanbanGitSync handles push, pull, and status flows', async (t) => {
   const sync = new KanbanGitSync(
     { workingDir: '/repo', autoPush: true, autoPull: true },
     {
-      onSyncStart: (op) => starts.push(op),
-      onSyncComplete: (op) => completes.push(op),
+      onSyncStart: (op: string) => starts.push(op),
+      onSyncComplete: (op: string) => completes.push(op),
     },
   );
 

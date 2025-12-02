@@ -4,8 +4,9 @@
     "rootDir": "./",
     "outDir": "dist",
     "composite": true,
-    "declaration": true
+    "declaration": true,
+    "allowImportingTsExtensions": true
   },
-  "include": ["src/**/*", "tests/**/*"],
+  "include": ["src/**/*", "tests/**/*", "lib/**/*", "test-utils/**/*"],
   "references": [{ "path": "../kanban-sdk" }]
 }

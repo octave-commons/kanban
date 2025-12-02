@@ -3,8 +3,8 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 
 import test from 'ava';
 
-import { indexForSearch } from '../lib/kanban.js';
-import { withTempDir } from '../test-utils/helpers.js';
+import { indexForSearch } from '../lib/kanban.ts';
+import { withTempDir } from '../test-utils/helpers.ts';
 
 const writeTaskMarkdown = async (
   dir: string,
