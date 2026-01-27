@@ -235,7 +235,7 @@ test('TransitionRulesEngine has no TypeScript fallback - createTransitionRulesEn
 
 test('TransitionRulesEngine validates actual Clojure DSL content', async (t) => {
   const tmp = await withTempDir(t);
-  const dslPath = path.join(tmp, 'kanban-transitions.clj');
+  const dslPath = path.join(tmp, 'kanban_transitions.clj');
 
   // Create a minimal valid Clojure DSL
   const validDSL = `

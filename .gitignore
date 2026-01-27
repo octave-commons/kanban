@@ -37,6 +37,8 @@ coverage/
 *.cache
 test-git-workflow-temp/
 stryker-tmp/
+.stryker-tmp/
+reports/
 
 # Test audit logs
 logs/tests/
