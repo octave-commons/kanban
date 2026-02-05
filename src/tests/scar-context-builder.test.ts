@@ -340,11 +340,7 @@ ${task.content}`;
   }
 });
 
-const gitTestsEnabled =
-  process.env.KANBAN_DISABLE_GIT !== 'true' && process.env.KANBAN_DISABLE_GIT !== '1';
-const gitTest = gitTestsEnabled ? test : test.skip;
-
-gitTest('ScarContextBuilder - Git analysis', async (t) => {
+test('ScarContextBuilder - Git analysis', async (t) => {
   const { boardPath, tasksDir, tempDir } = await setupTestEnvironment();
 
   try {

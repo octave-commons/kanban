@@ -10,6 +10,7 @@ import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import { loadBoard, readTasksFolder } from '../kanban.js';
 import type { EventLogManager } from '../../board/event-log/index.js';
+import { isGitDisabled } from '../utils/env-utils.js';
 import type {
   ScarContext,
   ScarRecord,
@@ -568,9 +569,7 @@ export class ScarContextBuilder {
       tags: [],
     };
 
-    const gitDisabled =
-      process.env.KANBAN_DISABLE_GIT === 'true' || process.env.KANBAN_DISABLE_GIT === '1';
-    if (gitDisabled) {
+    if (isGitDisabled()) {
       return analysis;
     }
 
