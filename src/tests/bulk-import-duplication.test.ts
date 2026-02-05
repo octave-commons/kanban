@@ -9,8 +9,11 @@ import { withTempDir, makeBoard } from '../test-utils/helpers.js';
 // Avoid expensive index refresh during unit tests
 process.env.KANBAN_SKIP_INDEX = '1';
 
+const TIMEOUT_MS = 120_000;
+
 // Skipped temporarily: createTask duplicate handling times out under coverage; track in spec/test-timeouts.md.
-test.serial.skip('bulk import operations do not create duplicates', async (t) => {
+test.serial('bulk import operations do not create duplicates', async (t) => {
+  t.timeout(TIMEOUT_MS);
   const tempDir = await withTempDir(t);
   const boardPath = path.join(tempDir, 'board.md');
   const tasksDir = path.join(tempDir, 'tasks');
@@ -73,7 +76,8 @@ test.serial.skip('bulk import operations do not create duplicates', async (t) =>
 });
 
 // Skipped temporarily: cross-column duplicate createTask timing out; track in spec/test-timeouts.md.
-test.serial.skip('bulk import with allowed columns still permits duplicate titles', async (t) => {
+test.serial('bulk import with allowed columns still permits duplicate titles', async (t) => {
+  t.timeout(TIMEOUT_MS);
   const tempDir = await withTempDir(t);
   const boardPath = path.join(tempDir, 'board.md');
   const tasksDir = path.join(tempDir, 'tasks');

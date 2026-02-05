@@ -14,8 +14,10 @@ import {
   withTempDir,
 } from '../test-utils/helpers.js';
 
-// Temporarily skipped: sync/regenerate pipeline timing out under coverage; see spec/test-timeouts.md.
-test.skip('There are no yaml errors in frontmatter', async (t) => {
+const TIMEOUT_MS = 120_000;
+
+test.serial('There are no yaml errors in frontmatter', async (t) => {
+  t.timeout(TIMEOUT_MS);
   const tempDir = await withTempDir(t);
   const boardPath = path.join(tempDir, 'board.md');
   const tasksDir = path.join(tempDir, 'tasks');
@@ -37,7 +39,8 @@ test.skip('There are no yaml errors in frontmatter', async (t) => {
   await t.notThrowsAsync(async () => MarkdownBoard.load(boardContent));
 });
 
-test.skip('Task file bodies are the same before and after the board regeneration', async (t) => {
+test.serial('Task file bodies are the same before and after the board regeneration', async (t) => {
+  t.timeout(TIMEOUT_MS);
   const tempDir = await withTempDir(t);
   const boardPath = path.join(tempDir, 'board.md');
   const tasksDir = path.join(tempDir, 'tasks');
@@ -71,7 +74,8 @@ test.skip('Task file bodies are the same before and after the board regeneration
   t.deepEqual(normalizedAfter, normalizedBefore);
 });
 
-test.skip('There are no broken links on the generated board file', async (t) => {
+test.serial('There are no broken links on the generated board file', async (t) => {
+  t.timeout(TIMEOUT_MS);
   const tempDir = await withTempDir(t);
   const boardPath = path.join(tempDir, 'board.md');
   const tasksDir = path.join(tempDir, 'tasks');
@@ -133,7 +137,8 @@ test.skip('There are no broken links on the generated board file', async (t) => 
   }
 });
 
-test.skip('There are no redundant board columns', async (t) => {
+test.serial('There are no redundant board columns', async (t) => {
+  t.timeout(TIMEOUT_MS);
   const tempDir = await withTempDir(t);
   const boardPath = path.join(tempDir, 'board.md');
   const tasksDir = path.join(tempDir, 'tasks');
@@ -180,7 +185,8 @@ test.skip('There are no redundant board columns', async (t) => {
   }
 });
 
-test.skip('Task statuses are case insensitive, always mapping to a single column regardless of case or punctuation', async (t) => {
+test.serial('Task statuses are case insensitive, always mapping to a single column regardless of case or punctuation', async (t) => {
+  t.timeout(TIMEOUT_MS);
   const tempDir = await withTempDir(t);
   const boardPath = path.join(tempDir, 'board.md');
   const tasksDir = path.join(tempDir, 'tasks');
@@ -225,7 +231,8 @@ test.skip('Task statuses are case insensitive, always mapping to a single column
   }
 });
 
-test.skip('syncBoardAndTasks removes duplicate fallback entries', async (t) => {
+test.serial('syncBoardAndTasks removes duplicate fallback entries', async (t) => {
+  t.timeout(TIMEOUT_MS);
   const tempDir = await withTempDir(t);
   const boardPath = path.join(tempDir, 'board.md');
   const tasksDir = path.join(tempDir, 'tasks');

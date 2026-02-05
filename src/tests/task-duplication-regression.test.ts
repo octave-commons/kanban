@@ -8,8 +8,11 @@ import { withTempDir, makeBoard } from '../test-utils/helpers.js';
 
 process.env.KANBAN_SKIP_INDEX = '1';
 
+const TIMEOUT_MS = 120_000;
+
 // Temporarily skipped: createTask duplicate/idempotency scenarios timing out under coverage; see spec/test-timeouts.md.
-test.skip('createTask is idempotent - same title returns existing task', async (t) => {
+test.serial('createTask is idempotent - same title returns existing task', async (t) => {
+  t.timeout(TIMEOUT_MS);
   const tempDir = await withTempDir(t);
   const boardPath = path.join(tempDir, 'board.md');
   const tasksDir = path.join(tempDir, 'tasks');
@@ -44,7 +47,8 @@ test.skip('createTask is idempotent - same title returns existing task', async (
   t.is(firstTask.status, secondTask.status, 'Status should match');
 });
 
-test.skip('createTask prevents duplicate titles with different content', async (t) => {
+test.serial('createTask prevents duplicate titles with different content', async (t) => {
+  t.timeout(TIMEOUT_MS);
   const tempDir = await withTempDir(t);
   const boardPath = path.join(tempDir, 'board.md');
   const tasksDir = path.join(tempDir, 'tasks');
@@ -90,7 +94,8 @@ test.skip('createTask prevents duplicate titles with different content', async (
   );
 });
 
-test.skip('createTask allows same title in different columns', async (t) => {
+test.serial('createTask allows same title in different columns', async (t) => {
+  t.timeout(TIMEOUT_MS);
   const tempDir = await withTempDir(t);
   const boardPath = path.join(tempDir, 'board.md');
   const tasksDir = path.join(tempDir, 'tasks');
@@ -125,7 +130,8 @@ test.skip('createTask allows same title in different columns', async (t) => {
   t.is(iceboxTask.status, 'icebox', 'Second task should be in icebox');
 });
 
-test.skip('createTask handles case-insensitive title matching', async (t) => {
+test.serial('createTask handles case-insensitive title matching', async (t) => {
+  t.timeout(TIMEOUT_MS);
   const tempDir = await withTempDir(t);
   const boardPath = path.join(tempDir, 'board.md');
   const tasksDir = path.join(tempDir, 'tasks');
@@ -156,7 +162,8 @@ test.skip('createTask handles case-insensitive title matching', async (t) => {
   t.is(firstTask.uuid, secondTask.uuid, 'Should handle case-insensitive matching');
 });
 
-test.skip('createTask trims whitespace for title matching', async (t) => {
+test.serial('createTask trims whitespace for title matching', async (t) => {
+  t.timeout(TIMEOUT_MS);
   const tempDir = await withTempDir(t);
   const boardPath = path.join(tempDir, 'board.md');
   const tasksDir = path.join(tempDir, 'tasks');
@@ -187,7 +194,8 @@ test.skip('createTask trims whitespace for title matching', async (t) => {
   t.is(firstTask.uuid, secondTask.uuid, 'Should trim whitespace for matching');
 });
 
-test.skip('board regeneration does not create duplicate tasks', async (t) => {
+test.serial('board regeneration does not create duplicate tasks', async (t) => {
+  t.timeout(TIMEOUT_MS);
   const tempDir = await withTempDir(t);
   const boardPath = path.join(tempDir, 'board.md');
   const tasksDir = path.join(tempDir, 'tasks');
@@ -230,7 +238,8 @@ test.skip('board regeneration does not create duplicate tasks', async (t) => {
   }
 });
 
-test.skip('multiple rapid createTask calls do not create duplicates', async (t) => {
+test.serial('multiple rapid createTask calls do not create duplicates', async (t) => {
+  t.timeout(TIMEOUT_MS);
   const tempDir = await withTempDir(t);
   const boardPath = path.join(tempDir, 'board.md');
   const tasksDir = path.join(tempDir, 'tasks');
@@ -259,7 +268,8 @@ test.skip('multiple rapid createTask calls do not create duplicates', async (t) 
   t.is(taskFiles.length, 1, 'Should only create one task file');
 });
 
-test.skip('createTask with UUID uses existing task if title matches', async (t) => {
+test.serial('createTask with UUID uses existing task if title matches', async (t) => {
+  t.timeout(TIMEOUT_MS);
   const tempDir = await withTempDir(t);
   const boardPath = path.join(tempDir, 'board.md');
   const tasksDir = path.join(tempDir, 'tasks');
