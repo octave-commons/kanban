@@ -50,6 +50,7 @@
   },
   "scripts": {
     "build": "pnpm --filter @promethean-os/kanban-plugin-heal build && pnpm run build:dist && cp -r src/nbb dist/nbb",
+    "typecheck": "tsc -p tsconfig.build.json --noEmit",
     "build:cljs": "shadow-cljs release kanban-frontend",
     "build:docs": "typedoc --options typedoc.json",
     "dev:cljs": "shadow-cljs watch kanban-frontend",
