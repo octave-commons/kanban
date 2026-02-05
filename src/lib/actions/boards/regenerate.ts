@@ -40,25 +40,30 @@ export const regenerateBoard = async (
   const configuredKeys = new Set(statusValues.map((value) => columnKey(value)));
 
   const configuredColumns: ColumnData[] = statusValues.map((statusValue) => {
-    const displayName = normalizeColumnDisplayName(statusValue);
+    const displayName = statusValue;
     const key = columnKey(statusValue);
     const group = statusGroups.get(key);
+    const tasks = group ? group.tasks.map((task) => ({ ...task, status: displayName })) : [];
     return {
       name: displayName,
-      count: group?.tasks.length ?? 0,
+      count: tasks.length,
       limit: config.wipLimits[statusValue] ?? null,
-      tasks: group ? [...group.tasks] : [],
+      tasks,
     };
   });
 
   const additionalColumns: ColumnData[] = Array.from(statusGroups.entries())
     .filter(([key]) => !configuredKeys.has(key))
-    .map(([, group]) => ({
-      name: group.name,
-      count: group.tasks.length,
-      limit: null,
-      tasks: [...group.tasks],
-    }));
+    .map(([, group]) => {
+      const displayName = columnKey(group.name);
+      const tasks = group.tasks.map((task) => ({ ...task, status: displayName }));
+      return {
+        name: displayName,
+        count: tasks.length,
+        limit: null,
+        tasks,
+      };
+    });
 
   const board: Board = {
     columns: [...configuredColumns, ...additionalColumns],

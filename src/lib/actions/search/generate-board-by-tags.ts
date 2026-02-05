@@ -47,14 +47,15 @@ export const generateBoardByTags = async (
 
   const statusValues = Array.from(config.statusValues) as string[];
   const columns: ColumnData[] = statusValues.map((statusValue) => {
-    const displayName = normalizeColumnDisplayName(statusValue);
+    const displayName = statusValue;
     const key = columnKey(statusValue);
     const group = statusGroups.get(key);
+    const tasks = group ? group.tasks.map((task) => ({ ...task, status: displayName })) : [];
     return {
       name: displayName,
-      count: group?.tasks.length ?? 0,
+      count: tasks.length,
       limit: config.wipLimits[statusValue] ?? null,
-      tasks: group ? [...group.tasks] : [],
+      tasks,
     };
   });
 

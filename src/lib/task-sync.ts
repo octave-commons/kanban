@@ -8,6 +8,7 @@ import {
   columnKey,
   deriveFileBaseFromTask,
   ensureTaskFileBase,
+  ensureUniqueFileBase,
   isFallbackSlug,
   normalizeColumnDisplayName,
   sanitizeFileNameBase,
@@ -26,7 +27,11 @@ export const pullFromTasks = async (
   let added = 0,
     moved = 0;
   const byId = new Map<string, { col: ColumnData; idx: number }>();
-  board.columns.forEach((col) => col.tasks.forEach((t, idx) => byId.set(t.uuid, { col, idx })));
+  for (const col of board.columns) {
+    col.tasks.forEach((task, idx) => {
+      byId.set(task.uuid, { col, idx });
+    });
+  }
 
   const canonicalTitles = new Set<string>();
   const seenTaskIds = new Set<string>();
@@ -153,6 +158,13 @@ export const pushToTasks = async (
     console.warn(`Warning: Could not read tasks directory ${tasksDir}: ${error}`);
   }
 
+  for (const file of existingFiles) {
+    const base = path.basename(file, '.md');
+    if (!usedNames.has(base)) {
+      usedNames.set(base, '');
+    }
+  }
+
   for (const col of board.columns) {
     for (const task of col.tasks) {
       const baseName = ensureTaskFileBase(task);
@@ -189,35 +201,13 @@ export const pushToTasks = async (
       }
 
       let targetBase = baseName;
-      const conflictingFileName = `${baseName}.md`;
-
-      if (existingFiles.has(conflictingFileName)) {
-        const conflictingUuid = usedNames.get(baseName);
-
-        if (conflictingUuid && conflictingUuid !== finalTask.uuid) {
-          console.log(
-            `🔄 Duplicate task detected: UUID ${finalTask.uuid} conflicts with existing UUID ${conflictingUuid}. Using existing file "${conflictingFileName}"`,
-          );
-
-          targetBase = baseName;
-          finalTask.slug = targetBase;
-        } else if (!conflictingUuid) {
-          let attempt = 1;
-          let uniqueCandidate = `${baseName} ${attempt}`;
-          while (existingFiles.has(`${uniqueCandidate}.md`)) {
-            attempt++;
-            uniqueCandidate = `${baseName} ${attempt}`;
-          }
-          targetBase = uniqueCandidate;
-          console.log(
-            `👻 Ghost file detected: "${conflictingFileName}" has no frontmatter. Using "${targetBase}.md"`,
-          );
-        }
-      } else if (existingFileName && existingFiles.has(existingFileName)) {
+      if (existingFileName && existingFiles.has(existingFileName)) {
         if (existingTask && existingTask.title === finalTask.title) {
           targetBase = existingFileBase!;
         }
       }
+
+      targetBase = ensureUniqueFileBase(targetBase, usedNames, finalTask.uuid);
 
       if (finalTask.slug !== targetBase) {
         finalTask.slug = targetBase;
@@ -233,15 +223,8 @@ export const pushToTasks = async (
       let finalTargetPath = targetPath;
       let shouldDeletePrevious = true;
 
-      const conflictingUuid = usedNames.get(baseName);
-      if (
-        conflictingUuid &&
-        conflictingUuid !== finalTask.uuid &&
-        existingFiles.has(conflictingFileName)
-      ) {
-        finalTargetPath = path.join(tasksDir, conflictingFileName);
-        shouldDeletePrevious = false;
-        console.log(`🔗 Merging task ${finalTask.uuid} into existing file ${conflictingFileName}`);
+      if (finalTargetPath) {
+        existingFiles.add(path.basename(finalTargetPath));
       }
 
       let existingContent = '';
@@ -275,15 +258,7 @@ export const pushToTasks = async (
       await fs.writeFile(finalTargetPath, content, 'utf8');
 
       if (!previous) {
-        if (
-          conflictingUuid &&
-          conflictingUuid !== finalTask.uuid &&
-          existingFiles.has(conflictingFileName)
-        ) {
-          console.log(`✅ Merged duplicate task, no new file created`);
-        } else {
-          added += 1;
-        }
+        added += 1;
       } else {
         moved += 1;
         if (
@@ -414,26 +389,33 @@ export const regenerateBoard = async (
 
   const configuredStatusKeys = new Set(Array.from(config.statusValues).map(columnKey));
   const configuredColumns: ColumnData[] = Array.from(config.statusValues).map((statusValue) => {
-    const displayName = normalizeColumnDisplayName(statusValue);
+    const displayName = statusValue;
     const key = columnKey(statusValue);
     const existingGroup = statusGroups.get(key);
+    const tasks = existingGroup
+      ? existingGroup.tasks.map((task) => ({ ...task, status: displayName }))
+      : [];
 
     return {
       name: displayName,
-      count: existingGroup?.tasks.length || 0,
+      count: tasks.length,
       limit: config.wipLimits[statusValue] || null,
-      tasks: existingGroup?.tasks || [],
+      tasks,
     };
   });
 
   const additionalColumns: ColumnData[] = Array.from(statusGroups.entries())
     .filter(([key]) => !configuredStatusKeys.has(key))
-    .map(([, group]) => ({
-      name: group.name,
-      count: group.tasks.length,
-      limit: null,
-      tasks: group.tasks,
-    }));
+    .map(([, group]) => {
+      const displayName = columnKey(group.name);
+      const tasks = group.tasks.map((task) => ({ ...task, status: displayName }));
+      return {
+        name: displayName,
+        count: tasks.length,
+        limit: null,
+        tasks,
+      };
+    });
 
   const columns = [...configuredColumns, ...additionalColumns];
 
@@ -472,14 +454,17 @@ export const generateBoardByTags = async (
   }
 
   const columns: ColumnData[] = Array.from(config.statusValues).map((statusValue) => {
-    const displayName = normalizeColumnDisplayName(statusValue);
+    const displayName = statusValue;
     const key = columnKey(statusValue);
     const existingGroup = statusGroups.get(key);
+    const tasks = existingGroup
+      ? existingGroup.tasks.map((task) => ({ ...task, status: displayName }))
+      : [];
     return {
       name: displayName,
-      count: existingGroup?.tasks.length || 0,
+      count: tasks.length,
       limit: config.wipLimits[statusValue] || null,
-      tasks: existingGroup?.tasks || [],
+      tasks,
     };
   });
 

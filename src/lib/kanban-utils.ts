@@ -162,14 +162,19 @@ export const ensureUniqueFileBase = (
   const MAX_BASENAME_LENGTH = 120;
   const initial = base.length > 0 ? base : fallbackFileBase(uuid);
 
-  const truncateForAttempt = (baseStr: string, attemptNum: number) => {
+  const truncateForAttempt = (baseStr: string, attemptNum: number): string => {
     const suffix = attemptNum > 1 ? ` ${attemptNum}` : '';
     const allowed = Math.max(1, MAX_BASENAME_LENGTH - suffix.length);
     const trimmed = baseStr.trim();
-    if (trimmed.length <= allowed) return trimmed;
-    const head = Math.floor(allowed * 0.6);
-    const tail = allowed - head;
-    return `${trimmed.slice(0, head).trim()} ${trimmed.slice(-tail).trim()}`.trim();
+    let core: string;
+    if (trimmed.length <= allowed) {
+      core = trimmed;
+    } else {
+      const head = Math.floor(allowed * 0.6);
+      const tail = allowed - head;
+      core = `${trimmed.slice(0, head).trim()} ${trimmed.slice(-tail).trim()}`.trim();
+    }
+    return suffix.length > 0 ? `${core}${suffix}` : core;
   };
 
   let attempt = 1;
