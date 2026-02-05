@@ -30,13 +30,14 @@ export const loadKanbanConfig = async (
   options?: Readonly<{
     readonly argv?: ReadonlyArray<string>;
     readonly env?: Readonly<NodeJS.ProcessEnv>;
+    readonly cwd?: string;
   }>,
 ): Promise<LoadKanbanConfigResult> => {
   const argv = options?.argv ?? process.argv.slice(2);
   const env = options?.env ?? process.env;
   const envValues = parseEnvConfig(env);
   const { values: argValues, rest } = parseArgv(argv);
-  const cwd = process.cwd();
+  const cwd = options?.cwd ?? process.cwd();
   const repo = await resolveRepo(argValues, envValues, cwd);
   const defaults = defaultConfigForRepo(repo);
   const explicitConfig =

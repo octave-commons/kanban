@@ -13,13 +13,21 @@ import {
 import { applyLegacyEnv } from './legacy.js';
 import { loadCliExtensions } from './plugins.js';
 
-export const runCommanderCli = async (argv: string[]): Promise<void> => {
+export const runCommanderCli = async (
+  argv: string[],
+  options?: Readonly<{
+    readonly env?: Readonly<NodeJS.ProcessEnv>;
+    readonly cwd?: string;
+  }>,
+): Promise<void> => {
   const normalizedArgs = argv.slice(2);
   const jsonRequested = normalizedArgs.includes('--json');
+  const env = options?.env ?? process.env;
 
   const { config, restArgs } = await loadKanbanConfig({
     argv: normalizedArgs,
-    env: applyLegacyEnv(process.env),
+    env: applyLegacyEnv(env),
+    cwd: options?.cwd,
   });
 
   const context: CliContext = {
@@ -104,7 +112,7 @@ export const runCommanderCli = async (argv: string[]): Promise<void> => {
 
   program.exitOverride();
   try {
-    await program.parseAsync(['node', 'kanban', ...restArgs], { from: 'user' });
+    await program.parseAsync([...restArgs], { from: 'user' });
   } catch (error: any) {
     if (error?.code === 'commander.unknownCommand' || error?.code === 'commander.helpDisplayed') {
       process.exitCode = 1;
