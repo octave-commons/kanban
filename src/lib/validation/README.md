@@ -101,6 +101,9 @@ Security review completed by Security Team:
 ### Environment Variables
 
 ```bash
+# Disable git integration entirely
+KANBAN_DISABLE_GIT=true
+
 # Skip git checks (for testing environments)
 KANBAN_SKIP_GIT_CHECKS=true
 

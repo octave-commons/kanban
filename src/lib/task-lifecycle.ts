@@ -26,6 +26,7 @@ import {
 import { toFrontmatter, readTasksFolder, resolveTaskFilePath } from './task-files.js';
 import { writeBoard } from './board-serialization.js';
 import { persistBoardAndTasks } from './task-sync.js';
+import { shouldSkipFileChecks, shouldSkipGitChecks } from './utils/env-utils.js';
 
 export const validateStartingStatus = (column: string): void => {
   const validStartingStatuses = ['icebox', 'incoming'];
@@ -99,8 +100,8 @@ export const updateStatus = async (
     const p0Validation = await validateP0SecurityTask(found, currentStatus, normalizedStatus, {
       repoRoot: process.cwd(),
       tasksDir: tasksDir,
-      skipGitChecks: false,
-      skipFileChecks: false,
+      skipGitChecks: shouldSkipGitChecks(),
+      skipFileChecks: shouldSkipFileChecks(),
     });
 
     if (!p0Validation.valid) {
@@ -452,13 +453,15 @@ export const createTask = async (
     if (fullTask) {
       return fullTask;
     }
-    return boardTaskInColumn;
-  }
+  return boardTaskInColumn;
+}
 
   const boardIndex = new Map<string, { column: ColumnData; index: number; task: Task }>();
-  board.columns.forEach((col) =>
-    col.tasks.forEach((task, index) => boardIndex.set(task.uuid, { column: col, index, task })),
-  );
+  board.columns.forEach((col) => {
+    col.tasks.forEach((task, index) => {
+      boardIndex.set(task.uuid, { column: col, index, task });
+    });
+  });
 
   const templatePath = input.templatePath ?? input.defaultTemplatePath;
   let templateContent: string | undefined;
