@@ -10,6 +10,8 @@
 import { execSync } from 'node:child_process';
 import path from 'node:path';
 
+import { isGitDisabled } from './utils/env-utils.js';
+
 export interface TaskCommitEntry {
   sha: string;
   timestamp: string;
@@ -36,6 +38,9 @@ export class TaskGitTracker {
    * Gets current git HEAD SHA
    */
   getCurrentCommitSha(): string {
+    if (isGitDisabled()) {
+      return 'unknown';
+    }
     try {
       return execSync('git rev-parse HEAD', {
         cwd: this.repoRoot,
@@ -51,6 +56,9 @@ export class TaskGitTracker {
    * Gets the last commit that modified a specific file
    */
   getLastCommitForFile(filePath: string): TaskCommitEntry | null {
+    if (isGitDisabled()) {
+      return null;
+    }
     try {
       // Check if file is outside repository - if so, return null gracefully
       const resolvedPath = path.resolve(filePath);
@@ -263,7 +271,22 @@ export class TaskGitTracker {
     const recommendations: string[] = [];
 
     // Check if task has basic required fields
-    const hasBasicFields = frontmatter.uuid && frontmatter.title && frontmatter.status;
+    const hasBasicFields = Boolean(frontmatter.uuid && frontmatter.title && frontmatter.status);
+
+    if (isGitDisabled()) {
+      if (!hasBasicFields) {
+        recommendations.push('Task has missing required fields (uuid, title, or status)');
+        recommendations.push('Consider deleting this task or adding missing fields');
+      }
+
+      return {
+        isTrulyOrphaned: !hasBasicFields,
+        isUntracked: false,
+        isHealthy: hasBasicFields,
+        issues,
+        recommendations,
+      };
+    }
 
     // Check if task file exists in git history
     let fileExistsInGit = false;
