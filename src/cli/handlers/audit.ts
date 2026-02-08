@@ -10,6 +10,7 @@ import {
 import { loadKanbanConfig } from '../../board/config.js';
 import { makeEventLogManager } from '../../board/event-log/index.js';
 import { TaskGitTracker } from '../../lib/task-git-tracker.js';
+import { isGitDisabled } from '../../lib/utils/env-utils.js';
 import type { CommandHandler } from '../types.js';
 import { withBoard } from './shared.js';
 
@@ -203,7 +204,9 @@ const handleAudit: CommandHandler = (args, context) =>
         console.log(`   Status: ${orphaned.task.status}`);
         console.log(`   Issues: ${orphaned.issues.join(', ')}`);
         console.log('   Recommendations:');
-        orphaned.recommendations.forEach((rec) => console.log(`     • ${rec}`));
+        orphaned.recommendations.forEach((rec) => {
+          console.log(`     • ${rec}`);
+        });
         console.log('');
       }
 
@@ -213,7 +216,9 @@ const handleAudit: CommandHandler = (args, context) =>
         console.log(`   Status: ${untracked.task.status}`);
         console.log(`   Issues: ${untracked.issues.join(', ')}`);
         console.log('   Recommendations:');
-        untracked.recommendations.forEach((rec) => console.log(`     • ${rec}`));
+        untracked.recommendations.forEach((rec) => {
+          console.log(`     • ${rec}`);
+        });
         console.log('');
       }
 
@@ -223,7 +228,9 @@ const handleAudit: CommandHandler = (args, context) =>
         console.log(`   Status: ${issue.task.status}`);
         console.log(`   Issues: ${issue.issues.join(', ')}`);
         console.log('   Recommendations:');
-        issue.recommendations.forEach((rec) => console.log(`     • ${rec}`));
+        issue.recommendations.forEach((rec) => {
+          console.log(`     • ${rec}`);
+        });
         console.log('');
       }
 
@@ -454,6 +461,12 @@ const handleCommitStats: CommandHandler = (_args, context) =>
     console.log(`Tracking coverage: ${(100 - stats.orphanageRate).toFixed(1)}%`);
     console.log('');
 
+    if (isGitDisabled()) {
+      console.log('⚠️  Git tracking is disabled (KANBAN_DISABLE_GIT=true)');
+      console.log('   Commit stats reflect existing metadata only');
+      console.log('');
+    }
+
     if (stats.orphaned > 0) {
       console.log(`⚠️  Found ${stats.orphaned} orphaned task(s) lacking proper commit tracking`);
       console.log('   Run "pnpm kanban audit --fix" to add commit tracking to these tasks');
@@ -462,8 +475,8 @@ const handleCommitStats: CommandHandler = (_args, context) =>
 
     if (stats.withCommitTracking > 0) {
       console.log('✅ Commit tracking is working for tracked tasks');
-      console.log('   Each task change creates a git commit with standardized messages');
       console.log('   Task files include lastCommitSha and commitHistory fields');
+      console.log('   Git tracking is experimental and requires KANBAN_DISABLE_GIT=false');
       console.log('');
     }
 

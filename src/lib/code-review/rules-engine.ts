@@ -30,6 +30,7 @@ import { TypeScriptAnalyzer } from './analyzers/typescript-analyzer.js';
 import { SecurityAnalyzer } from './analyzers/security-analyzer.js';
 import { AIAnalyzer } from './analyzers/ai-analyzer.js';
 import { ReviewCache } from './cache/review-cache.js';
+import { isGitDisabled } from '../utils/env-utils.js';
 
 const execAsync = promisify(exec);
 
@@ -477,6 +478,9 @@ export class CodeReviewRulesEngine {
     }
 
     // Fallback: get git diff for recent commits
+    if (isGitDisabled()) {
+      return [];
+    }
     try {
       const { stdout } = await execAsync('git diff --name-only HEAD~1 HEAD', { timeout: 10000 });
       return stdout

@@ -151,9 +151,9 @@ and you can trigger a manual refresh from the "Refresh" button in the header.
 
 - `GITHUB_TOKEN`, `GITHUB_OWNER`, `GITHUB_REPO` for GitHub-side operations.
 - `KANBAN_BOARD_FILE`, `KANBAN_TASKS_DIR` for explicit paths.
-- `KANBAN_DISABLE_GIT` (`true`/`1`) disables git integration (task git tracking + git history analysis + audit fix mode).
-- `KANBAN_SKIP_GIT_CHECKS` (`true`/`1`) skips git-backed validation checks (P0 security gate).
-- `KANBAN_SKIP_FILE_CHECKS` (`true`/`1`) skips file-content validation checks (P0 security gate).
+- `KANBAN_DISABLE_GIT` (`true`/`1`) disables git integration (task git tracking + git history analysis + audit fix mode). Experimental and **disabled by default**; set to `false`/`0` to enable.
+- `KANBAN_SKIP_GIT_CHECKS` (`true`/`1`) skips git-backed validation checks (P0 security gate). Defaults to `true` if `KANBAN_DISABLE_GIT` is `true`, otherwise `false`.
+- `KANBAN_SKIP_FILE_CHECKS` (`true`/`1`) skips file-content validation checks (P0 security gate). Defaults to `false`.
 
 ## Process config
 

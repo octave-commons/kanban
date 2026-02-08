@@ -5,7 +5,7 @@ export const envBool = (value: string | undefined, defaultValue: boolean): boole
 };
 
 export const isGitDisabled = (env: NodeJS.ProcessEnv = process.env): boolean =>
-  envBool(env.KANBAN_DISABLE_GIT, false);
+  envBool(env.KANBAN_DISABLE_GIT, true);
 
 export const shouldSkipGitChecks = (env: NodeJS.ProcessEnv = process.env): boolean =>
   envBool(env.KANBAN_SKIP_GIT_CHECKS, isGitDisabled(env));

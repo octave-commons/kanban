@@ -11,6 +11,7 @@ import { execSync } from 'node:child_process';
 
 import type { TransitionEvent } from '../board/event-log/types.js';
 import type { KanbanConfig } from '../board/config/shared.js';
+import { isGitDisabled } from './utils/env-utils.js';
 
 export interface GitCommit {
   sha: string;
@@ -70,6 +71,9 @@ export class GitEventReconstructor {
    * Get all commits that modified task files
    */
   private getTaskCommits(): GitCommit[] {
+    if (isGitDisabled()) {
+      return [];
+    }
     const sinceFlag = this.options.since ? `--since="${this.options.since}"` : '';
     const tasksPath = path.relative(this.repoRoot, this.tasksDir);
 
@@ -162,6 +166,9 @@ export class GitEventReconstructor {
    * Get task file content at specific commit
    */
   private getTaskContentAtCommit(filePath: string, commitSha: string): string | null {
+    if (isGitDisabled()) {
+      return null;
+    }
     try {
       const cmd = `git show ${commitSha}:"${filePath}"`;
       return execSync(cmd, {

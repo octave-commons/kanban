@@ -10,6 +10,7 @@ import path from 'node:path';
 
 import type { HealingStatus } from '../heal/scar-context-types.js';
 import type { HealCommandOptions, ExtendedHealingResult } from '../heal/heal-command.js';
+import { isGitDisabled } from '../utils/env-utils.js';
 import {
   runAgentOperations,
   runAgentRecommendations,
@@ -183,25 +184,29 @@ export class KanbanHealingCoordinator {
     }
 
     // Check git availability
-    try {
-      const { execSync } = await import('node:child_process');
-      const repoRoot = this.config.repoRoot || path.dirname(this.config.boardPath);
+    if (isGitDisabled()) {
+      status.git.issues.push('Git integration disabled by KANBAN_DISABLE_GIT');
+    } else {
+      try {
+        const { execSync } = await import('node:child_process');
+        const repoRoot = this.config.repoRoot || path.dirname(this.config.boardPath);
 
-      // Check if we're in a git repository
-      execSync('git rev-parse --git-dir', { cwd: repoRoot, stdio: 'ignore' });
+        // Check if we're in a git repository
+        execSync('git rev-parse --git-dir', { cwd: repoRoot, stdio: 'ignore' });
 
-      const currentSha = execSync('git rev-parse HEAD', {
-        cwd: repoRoot,
-        encoding: 'utf8',
-      }).trim();
+        const currentSha = execSync('git rev-parse HEAD', {
+          cwd: repoRoot,
+          encoding: 'utf8',
+        }).trim();
 
-      status.git.available = true;
-      status.git.repoRoot = repoRoot;
-      status.git.currentSha = currentSha;
-    } catch (error) {
-      status.git.issues.push(`Git not available: ${error}`);
-      if (!this.config.fallbackToNonGit) {
-        status.git.issues.push('Non-git fallback disabled');
+        status.git.available = true;
+        status.git.repoRoot = repoRoot;
+        status.git.currentSha = currentSha;
+      } catch (error) {
+        status.git.issues.push(`Git not available: ${error}`);
+        if (!this.config.fallbackToNonGit) {
+          status.git.issues.push('Non-git fallback disabled');
+        }
       }
     }
 

@@ -6,6 +6,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import { createKanbanUiServer, type KanbanUiServerOptions } from './ui-server.js';
 import { KanbanFileWatcher, type FileChangeEvent, type FileWatcherOptions } from './file-watcher.js';
 import { KanbanGitSync, type GitSyncOptions, type GitSyncStatus } from './git-sync.js';
+import { isGitDisabled } from './utils/env-utils.js';
 
 /**
  * Configuration options for the development server
@@ -83,8 +84,9 @@ export class KanbanDevServer {
    * @param options - Configuration options for the development server
    */
   constructor(options: DevServerOptions) {
+    const autoGitDefault = !isGitDisabled();
     this.options = {
-      autoGit: true,
+      autoGit: autoGitDefault,
       autoOpen: true,
       debounceMs: 1000,
       ...options
@@ -225,6 +227,10 @@ export class KanbanDevServer {
   }
 
   private async startGitSync(): Promise<void> {
+    if (isGitDisabled()) {
+      console.log('[kanban-dev] Git sync disabled by KANBAN_DISABLE_GIT');
+      return;
+    }
     const workingDir = path.dirname(path.resolve(this.options.boardFile));
 
     const gitOptions: GitSyncOptions = {

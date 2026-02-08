@@ -5,6 +5,8 @@
 
 import { execSync } from 'node:child_process';
 
+import { isGitDisabled } from '../../utils/env-utils.js';
+
 /**
  * Git repository state information
  */
@@ -47,6 +49,9 @@ export class GitUtils {
    * Get current repository state
    */
   async getCurrentState(): Promise<GitState> {
+    if (isGitDisabled()) {
+      return this.buildDisabledState();
+    }
     try {
       const headSha = this.execGit('rev-parse HEAD').trim();
       const branch = this.execGit('rev-parse --abbrev-ref HEAD').trim();
@@ -85,6 +90,9 @@ export class GitUtils {
    * Add files to staging area
    */
   async addFiles(filePaths: string[]): Promise<GitOperationResult> {
+    if (isGitDisabled()) {
+      return { success: false, error: 'Git integration disabled by KANBAN_DISABLE_GIT' };
+    }
     try {
       if (filePaths.length === 0) {
         return { success: true, data: 'No files to add' };
@@ -106,6 +114,9 @@ export class GitUtils {
    * Create a commit with message
    */
   async commit(message: string, allowEmpty = false): Promise<GitOperationResult> {
+    if (isGitDisabled()) {
+      return { success: false, error: 'Git integration disabled by KANBAN_DISABLE_GIT' };
+    }
     try {
       const emptyFlag = allowEmpty ? '--allow-empty' : '';
       const escapedMessage = message.replace(/"/g, '\\"');
@@ -127,6 +138,9 @@ export class GitUtils {
    * Create a git tag
    */
   async createTag(tag: string, target?: string, message?: string): Promise<GitOperationResult> {
+    if (isGitDisabled()) {
+      return { success: false, error: 'Git integration disabled by KANBAN_DISABLE_GIT' };
+    }
     try {
       const targetRef = target || 'HEAD';
       let command = `tag ${tag} ${targetRef}`;
@@ -151,6 +165,9 @@ export class GitUtils {
    * Delete a git tag
    */
   async deleteTag(tag: string): Promise<GitOperationResult> {
+    if (isGitDisabled()) {
+      return { success: false, error: 'Git integration disabled by KANBAN_DISABLE_GIT' };
+    }
     try {
       const output = this.execGit(`tag -d ${tag}`);
       return { success: true, data: output };
@@ -166,6 +183,9 @@ export class GitUtils {
    * Get commit SHA for a ref
    */
   async getCommitSha(ref: string): Promise<string | null> {
+    if (isGitDisabled()) {
+      return null;
+    }
     try {
       const sha = this.execGit(`rev-parse ${ref}`).trim();
       return sha;
@@ -178,6 +198,9 @@ export class GitUtils {
    * Get diff between two commits
    */
   async getDiff(fromRef: string, toRef: string = 'HEAD'): Promise<string> {
+    if (isGitDisabled()) {
+      return '';
+    }
     try {
       return this.execGit(`diff ${fromRef}..${toRef}`);
     } catch (error) {
@@ -189,6 +212,9 @@ export class GitUtils {
    * Get files changed between two commits
    */
   async getChangedFiles(fromRef: string, toRef: string = 'HEAD'): Promise<string[]> {
+    if (isGitDisabled()) {
+      return [];
+    }
     try {
       const output = this.execGit(`diff --name-only ${fromRef}..${toRef}`);
       return output
@@ -208,6 +234,9 @@ export class GitUtils {
     toRef: string = 'HEAD',
     limit?: number,
   ): Promise<Array<{ sha: string; message: string; author: string; date: Date }>> {
+    if (isGitDisabled()) {
+      return [];
+    }
     try {
       const range = fromRef ? `${fromRef}..${toRef}` : toRef;
       const limitFlag = limit ? `-${limit}` : '';
@@ -242,6 +271,9 @@ export class GitUtils {
    * Check if a ref exists
    */
   async refExists(ref: string): Promise<boolean> {
+    if (isGitDisabled()) {
+      return false;
+    }
     try {
       this.execGit(`rev-parse --verify ${ref}`, { stdio: 'ignore' });
       return true;
@@ -254,6 +286,9 @@ export class GitUtils {
    * Reset to a specific commit
    */
   async reset(target: string, mode: 'soft' | 'mixed' | 'hard' = 'mixed'): Promise<GitOperationResult> {
+    if (isGitDisabled()) {
+      return { success: false, error: 'Git integration disabled by KANBAN_DISABLE_GIT' };
+    }
     try {
       const output = this.execGit(`reset --${mode} ${target}`);
       return { success: true, data: output };
@@ -269,6 +304,9 @@ export class GitUtils {
    * Stash current changes
    */
   async stash(message?: string): Promise<GitOperationResult> {
+    if (isGitDisabled()) {
+      return { success: false, error: 'Git integration disabled by KANBAN_DISABLE_GIT' };
+    }
     try {
       const messageFlag = message ? ` -m "${message.replace(/"/g, '\\"')}"` : '';
       const output = this.execGit(`stash push${messageFlag}`);
@@ -285,6 +323,9 @@ export class GitUtils {
    * Pop stashed changes
    */
   async stashPop(): Promise<GitOperationResult> {
+    if (isGitDisabled()) {
+      return { success: false, error: 'Git integration disabled by KANBAN_DISABLE_GIT' };
+    }
     try {
       const output = this.execGit('stash pop');
       return { success: true, data: output };
@@ -300,8 +341,11 @@ export class GitUtils {
    * Execute a git command with proper error handling
    */
   private execGit(command: string, options: { stdio?: 'ignore' | 'pipe' } = {}): string {
+    if (isGitDisabled()) {
+      throw new Error('Git integration disabled by KANBAN_DISABLE_GIT');
+    }
     try {
-      const stdio = options.stdio || 'pipe' as any;
+      const stdio = (options.stdio || 'pipe') as any;
       return execSync(`git ${command}`, {
         cwd: this.repoPath,
         encoding: 'utf8',
@@ -314,6 +358,16 @@ export class GitUtils {
       }
       throw new Error(`Git command failed: git ${command} - ${error instanceof Error ? error.message : String(error)}`);
     }
+  }
+
+  private buildDisabledState(): GitState {
+    return {
+      headSha: 'unknown',
+      branch: 'unknown',
+      isClean: true,
+      modifiedFiles: [],
+      untrackedFiles: [],
+    };
   }
 }
 

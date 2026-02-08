@@ -1,5 +1,7 @@
 import { simpleGit, SimpleGit } from 'simple-git';
 
+import { isGitDisabled } from './utils/env-utils.js';
+
 /**
  * Configuration options for git synchronization
  */
@@ -64,6 +66,7 @@ export class KanbanGitSync {
   private readonly git: SimpleGit;
   private readonly options: GitSyncOptions;
   private readonly callbacks: GitSyncCallbacks;
+  private readonly gitEnabled: boolean;
 
   private syncInProgress = false;
   private lastStatus: GitSyncStatus | null = null;
@@ -74,6 +77,7 @@ export class KanbanGitSync {
    * @param callbacks - Event callback functions
    */
   constructor(options: GitSyncOptions, callbacks: GitSyncCallbacks = {}) {
+    const envDisablesGit = isGitDisabled();
     const defaultOptions = {
       autoPush: true,
       autoPull: true,
@@ -81,7 +85,11 @@ export class KanbanGitSync {
       remoteName: 'origin',
       branchName: 'main'
     };
-    this.options = { ...defaultOptions, ...options };
+    const mergedOptions = { ...defaultOptions, ...options };
+    this.gitEnabled = !envDisablesGit;
+    this.options = this.gitEnabled
+      ? mergedOptions
+      : { ...mergedOptions, autoPush: false, autoPull: false };
     this.callbacks = callbacks;
 
     this.git = simpleGit(options.workingDir);
@@ -95,6 +103,11 @@ export class KanbanGitSync {
    * @throws Error if not in a git repository or other initialization failures
    */
   async initialize(): Promise<void> {
+    if (!this.gitEnabled) {
+      this.lastStatus = this.buildDisabledStatus();
+      console.log('[kanban-dev] Git sync disabled by KANBAN_DISABLE_GIT');
+      return;
+    }
     try {
       // Check if we're in a git repository
       const isRepo = await this.git.checkIsRepo();
@@ -126,6 +139,10 @@ export class KanbanGitSync {
   }
 
   async updateStatus(): Promise<GitSyncStatus> {
+    if (!this.gitEnabled) {
+      this.lastStatus = this.buildDisabledStatus();
+      return this.lastStatus;
+    }
     try {
       const status = await this.git.status();
 
@@ -164,6 +181,9 @@ export class KanbanGitSync {
    * @returns True if push was successful, false otherwise
    */
   async autoPush(message?: string): Promise<boolean> {
+    if (!this.gitEnabled) {
+      return false;
+    }
     if (!this.options.autoPush || this.syncInProgress) {
       return false;
     }
@@ -221,6 +241,9 @@ export class KanbanGitSync {
    * @returns True if pull was successful, false otherwise
    */
   async autoPull(): Promise<boolean> {
+    if (!this.gitEnabled) {
+      return false;
+    }
     if (!this.options.autoPull || this.syncInProgress) {
       return false;
     }
@@ -286,6 +309,9 @@ export class KanbanGitSync {
   }
 
   async syncWithRemote(): Promise<boolean> {
+    if (!this.gitEnabled) {
+      return false;
+    }
     try {
       // First, pull any remote changes
       const pullSuccess = await this.autoPull();
@@ -303,6 +329,9 @@ export class KanbanGitSync {
   }
 
   async checkForRemoteChanges(): Promise<boolean> {
+    if (!this.gitEnabled) {
+      return false;
+    }
     try {
       await this.git.fetch(this.options.remoteName!);
       const status = await this.updateStatus();
@@ -335,6 +364,9 @@ export class KanbanGitSync {
    * @returns True if conflicts were resolved, false otherwise
    */
   async resolveConflicts(strategy: 'ours' | 'theirs' | 'manual'): Promise<boolean> {
+    if (!this.gitEnabled) {
+      return false;
+    }
     try {
       const status = await this.updateStatus();
       if (status.conflictCount === 0) {
@@ -364,6 +396,19 @@ export class KanbanGitSync {
       console.error('[kanban-dev] Failed to resolve conflicts:', error);
       return false;
     }
+  }
+
+  private buildDisabledStatus(): GitSyncStatus {
+    return {
+      isClean: true,
+      hasChanges: false,
+      hasRemoteChanges: false,
+      currentBranch: 'unknown',
+      aheadCount: 0,
+      behindCount: 0,
+      conflictCount: 0,
+      lastSyncTime: new Date(),
+    };
   }
 }
 

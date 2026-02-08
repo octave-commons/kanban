@@ -111,6 +111,11 @@ KANBAN_SKIP_GIT_CHECKS=true
 KANBAN_SKIP_FILE_CHECKS=true
 ```
 
+Notes:
+- `KANBAN_DISABLE_GIT` defaults to `true` (git tracking is experimental). Set to `false`/`0` to enable.
+- `KANBAN_SKIP_GIT_CHECKS` defaults to `true` when `KANBAN_DISABLE_GIT=true`, otherwise `false`.
+- `KANBAN_SKIP_FILE_CHECKS` defaults to `false`.
+
 ### Programmatic Usage
 
 ```typescript

@@ -14,6 +14,7 @@ import { createEventLogEntry } from './type-guards.js';
 import type { ScarContext, HealingResult } from './scar-context-types.js';
 import type { Board, Task } from '../types.js';
 import { loadBoard, readTasksFolder, syncBoardAndTasks } from '../kanban.js';
+import { isGitDisabled } from '../utils/env-utils.js';
 
 /**
  * Heal command configuration options
@@ -103,15 +104,20 @@ export class HealCommand {
     let context: ScarContext | null = null;
     let startSha: string | null = null;
     let endSha: string | null = null;
+    const gitEnabled = !isGitDisabled();
 
     try {
       // Get starting commit SHA
-      startSha = await this.getCurrentCommitSha();
-      if (!startSha) {
-        if (options.dryRun) {
-          startSha = 'dry-run';
-        } else {
-          throw new Error('Unable to determine current commit SHA');
+      if (!gitEnabled) {
+        startSha = 'git-disabled';
+      } else {
+        startSha = await this.getCurrentCommitSha();
+        if (!startSha) {
+          if (options.dryRun) {
+            startSha = 'dry-run';
+          } else {
+            throw new Error('Unable to determine current commit SHA');
+          }
         }
       }
 
@@ -140,18 +146,18 @@ export class HealCommand {
       const healingTime = Date.now() - healingStartTime;
 
       // Get ending commit SHA (if changes were made)
-      if (!options.dryRun && healingResult.status !== 'failed') {
+      if (!options.dryRun && healingResult.status !== 'failed' && gitEnabled) {
         endSha = await this.getCurrentCommitSha();
         if (!endSha) {
           throw new Error('Unable to determine final commit SHA');
         }
       } else {
-        endSha = startSha; // No changes made
+        endSha = startSha; // No changes made or git disabled
       }
 
       // Create git tag if requested
-      let tagResult;
-      if (options.createTags && !options.dryRun) {
+      let tagResult: ExtendedHealingResult['tagResult'];
+      if (options.createTags && !options.dryRun && gitEnabled) {
         tagResult = await this.gitTagManager.createHealTag(options.reason, endSha, {
           contextBuildTime,
           healingTime,
@@ -161,8 +167,8 @@ export class HealCommand {
       }
 
       // Record scar history
-      let scar;
-      if (endSha && endSha !== startSha && !options.dryRun) {
+      let scar: ExtendedHealingResult['scar'];
+      if (endSha && endSha !== startSha && !options.dryRun && gitEnabled) {
         const recordResult = await this.scarHistoryManager.recordHealingOperation(
           context,
           healingResult,
@@ -180,7 +186,7 @@ export class HealCommand {
       }
 
       // Push tags if requested
-      if (options.pushTags && tagResult?.success) {
+      if (options.pushTags && tagResult?.success && gitEnabled) {
         await this.gitTagManager.pushTags([tagResult.tag]);
       }
 
@@ -538,6 +544,9 @@ if (metrics.boardHealthScore && metrics.boardHealthScore < 70) {
    * Get current commit SHA
    */
   private async getCurrentCommitSha(): Promise<string | null> {
+    if (isGitDisabled()) {
+      return null;
+    }
     try {
       const { execSync } = await import('node:child_process');
       const sha = execSync('git rev-parse HEAD', {

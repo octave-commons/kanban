@@ -7,6 +7,8 @@
 
 import { execSync } from 'node:child_process';
 
+import { isGitDisabled } from '../utils/env-utils.js';
+
 export interface GitCommitInfo {
   hash: string;
   message: string;
@@ -37,6 +39,9 @@ export class GitValidator {
    * Checks if there are committed code changes for a task
    */
   async hasCodeChanges(options: GitValidationOptions): Promise<boolean> {
+    if (isGitDisabled()) {
+      return false;
+    }
     try {
       const commits = await this.getTaskCommits(options);
       return commits.length > 0;
@@ -50,6 +55,9 @@ export class GitValidator {
    * Gets commits related to a specific task
    */
   async getTaskCommits(options: GitValidationOptions): Promise<GitCommitInfo[]> {
+    if (isGitDisabled()) {
+      return [];
+    }
     const { sinceDate, taskUuid, taskTitle, maxCommits = 50 } = options;
 
     try {
@@ -177,6 +185,9 @@ export class GitValidator {
    * Gets file changes for a specific commit
    */
   async getCommitFiles(commitHash: string): Promise<string[]> {
+    if (isGitDisabled()) {
+      return [];
+    }
     try {
       const output = execSync(`git show --name-only --format="" ${commitHash}`, {
         cwd: this.repoRoot,
@@ -233,6 +244,14 @@ export class GitValidator {
     lastCommit?: string;
     isClean: boolean;
   }> {
+    if (isGitDisabled()) {
+      return {
+        branch: 'unknown',
+        remote: undefined,
+        lastCommit: undefined,
+        isClean: false,
+      };
+    }
     try {
       const branch = execSync('git rev-parse --abbrev-ref HEAD', {
         cwd: this.repoRoot,
@@ -284,6 +303,11 @@ export class GitValidator {
   }> {
     const errors: string[] = [];
     const warnings: string[] = [];
+
+    if (isGitDisabled()) {
+      warnings.push('Git integration disabled by KANBAN_DISABLE_GIT');
+      return { valid: true, errors, warnings };
+    }
 
     try {
       const repoInfo = await this.getRepoInfo();
