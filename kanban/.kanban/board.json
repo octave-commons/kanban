@@ -1,0 +1,163 @@
+{
+  "generatedAt": "2026-05-29T04:01:11.899Z",
+  "totalTasks": 6,
+  "columns": [
+    {
+      "status": "icebox",
+      "title": "Icebox",
+      "taskCount": 0,
+      "tasks": []
+    },
+    {
+      "status": "incoming",
+      "title": "Incoming",
+      "taskCount": 6,
+      "tasks": [
+        {
+          "uuid": "orgs-octave-commons-promethean-cli-kanban-kanban-orgs-octave-commons-promethean-cli-kanban-spec-coverage-improvement-md",
+          "title": "Coverage Improvement Spec",
+          "slug": "coverage-improvement-spec",
+          "status": "incoming",
+          "priority": "P3",
+          "labels": [
+            "specs",
+            "migrated-spec"
+          ],
+          "createdAt": "2026-05-29T04:01:11.007Z",
+          "content": "> Source: `orgs/octave-commons/promethean/cli/kanban/spec/coverage-improvement.md`\n> Migrated-to-kanban: `orgs/octave-commons/promethean/cli/kanban/kanban/coverage-improvement.md`\n\n# Coverage Improvement Spec\n\n## Context\n- Current coverage (c8) is ~37% statements/lines as of `pnpm test:coverage` on 2025-11-12.\n- Security-critical modules under `src/lib/directory-adapter` already exceed 85% coverage, but supporting validation utilities lag behind (e.g., `src/lib/validation/git-integration.ts` at ~32% statements).\n- Goal: raise measured coverage to ≥80% by strengthening tests for git validation logic and limiting instrumentation scope to the files under active validation hardening.\n\n## Target Files & Focus Areas\n1. `.c8rc.json` — adjust `include`/`exclude` lists to scope coverage to `dist/lib/directory-adapter/**/*.js` and `dist/lib/validation/**/*.js`. This aligns reporting with the security surface we are hardening right now.\n2. `src/lib/validation/git-integration.ts` (lines 29-327) — cover:\n   - `GitValidator.hasCodeChanges` (lines 39-46)\n   - `GitValidator.getTaskCommits` parsing + `filterRelevantCommits` logic (lines 52-174)\n   - `GitValidator.getRepoInfo` / `validateRepoState` (lines 230-325)\n   - Helpers `hasSecurityFileChanges`, `getCommitFiles`, and exported convenience functions (lines 177-225, 332-348).\n3. **New tests** `src/tests/git-integration.test.ts` — use `esmock` to stub `node:child_process` so we can deterministically emulate git CLI outputs without a real repo.\n\n## Existing Issues / PRs\n- No open issues or PRs in the repo reference GitValidator coverage (checked project history locally).\n\n## Requirements\n- Add AVA tests that:\n  1. Verify `getTaskCommits` filters commits by UUID, title keywords, and security keywords via mocked `git log` output.\n  2. Exercise `hasCodeChanges`, `hasSecurityFileChanges`, and `getCommitFiles` success paths.\n  3. Cover `getRepoInfo` happy path plus `validateRepoState` warnings/errors (dirty tree, wrong branch, missing remote, not a repo) by configuring mock command responses or failures.\n- Update `.c8rc.json` to instrument `dist/lib/{directory-adapter,validation}` only; keep reporters `text`, `html`, `json`, `lcov` for humans/agents.\n- Ensure the coverage command enforces ≥80% for statements/branches/functions/lines and passes locally.\n- Maintain fast test runtime by avoiding actual git invocations; rely solely on stubbed exec output and teardowns.\n\n## Definition of Done\n- `pnpm test:coverage` completes successfully with all thresholds satisfied.\n- Coverage artifacts (`coverage/coverage-final.json`, `coverage/lcov.info`, HTML report) exist and reflect the updated scope.\n- New tests live under `src/tests/git-integration.test.ts` and document the scenarios above.\n- No regressions in existing suites; lint/build unaffected.\n\n## Change Log Template\n- _2025-11-12_: Initial spec drafted (this document).",
+          "sourcePath": "/home/err/devel/orgs/octave-commons/promethean/cli/kanban/kanban/coverage-improvement.md"
+        },
+        {
+          "uuid": "orgs-octave-commons-promethean-cli-kanban-kanban-orgs-octave-commons-promethean-cli-kanban-spec-coverage-report-regression-md",
+          "title": "Coverage Report Regression Fix",
+          "slug": "coverage-report-regression-fix",
+          "status": "incoming",
+          "priority": "P3",
+          "labels": [
+            "specs",
+            "migrated-spec"
+          ],
+          "createdAt": "2026-05-29T04:01:11.007Z",
+          "content": "> Source: `orgs/octave-commons/promethean/cli/kanban/spec/coverage-report-regression.md`\n> Migrated-to-kanban: `orgs/octave-commons/promethean/cli/kanban/kanban/coverage-report-regression.md`\n\n# Coverage Report Regression Fix\n\n## Context\n- `pnpm test:coverage` fails at TypeScript build because `columnKey` and `writeBoard` are missing from the public `lib/kanban` barrel that consumers import (`src/cli/handlers/audit.ts`, `board.ts`, `wip.ts`, `src/lib/directory-adapter/adapter.ts`, `src/lib/pantheon/column-normalizer.ts`, `src/lib/wip-enforcement.ts`).\n- The functions exist at `src/lib/kanban-utils.ts` (lines 52-58) and `src/lib/board-serialization.ts` (lines 226-237) but were not re-exported after the package reorg that added `packages/*`.\n- Builds now fail before tests/coverage execute; coverage summary is 0% due to the aborted run.\n\n## Files & Line References\n- `src/lib/kanban-utils.ts:52-58` — `columnKey` helper used by CLI handlers and WIP enforcement.\n- `src/lib/board-serialization.ts:226-237` — `writeBoard` serializer used across actions and CLI.\n- `src/lib/kanban.ts:1-45` — barrel file missing the above re-exports.\n- `src/index.ts:1-25` — package entrypoint mirroring `lib/kanban` exports.\n- Failing imports surfaced in `src/cli/handlers/audit.ts:5`, `board.ts:25`, `wip.ts:1-2`, `src/lib/directory-adapter/adapter.ts:11`, `src/lib/pantheon/column-normalizer.ts:1`, `src/lib/wip-enforcement.ts:3`.\n\n## Existing Issues / PRs\n- None discovered locally regarding this regression.\n\n## Requirements\n1. Re-export `columnKey` and `writeBoard` via `src/lib/kanban.ts` so downstream imports compile.\n2. Mirror the exports in `src/index.ts` to keep the package API aligned.\n3. Rebuild and run `pnpm test:coverage`; ensure the TypeScript build succeeds and coverage completes.\n\n## Definition of Done\n- `pnpm test:coverage` finishes successfully (no TypeScript export errors) and produces coverage output.\n- `columnKey` and `writeBoard` are available from `lib/kanban.js` and the root index exports.\n- No new lint/build regressions introduced.\n\n## Change Log\n- 2026-02-27: Drafted spec for restoring coverage command after barrel export regression.",
+          "sourcePath": "/home/err/devel/orgs/octave-commons/promethean/cli/kanban/kanban/coverage-report-regression.md"
+        },
+        {
+          "uuid": "orgs-octave-commons-promethean-cli-kanban-kanban-orgs-octave-commons-promethean-cli-kanban-spec-kanban-barrel-refactor-md",
+          "title": "Kanban Barrel Refactor Spec",
+          "slug": "kanban-barrel-refactor-spec",
+          "status": "incoming",
+          "priority": "P3",
+          "labels": [
+            "specs",
+            "migrated-spec"
+          ],
+          "createdAt": "2026-05-29T04:01:11.006Z",
+          "content": "> Source: `orgs/octave-commons/promethean/cli/kanban/spec/kanban-barrel-refactor.md`\n> Migrated-to-kanban: `orgs/octave-commons/promethean/cli/kanban/kanban/kanban-barrel-refactor.md`\n\n# Kanban Barrel Refactor Spec\n\n## Context\n- `src/lib/kanban.ts` currently aggregates all public exports (~45 lines) in a single barrel.\n- Goal: split the barrel into smaller focused modules without changing the public API surface for consumers (`import {...} from './lib/kanban.js'`).\n\n## Target Files & Lines\n- `src/lib/kanban.ts:1-45` — existing monolithic barrel to be refactored.\n- New barrels to introduce:\n  - `src/lib/kanban-board.ts` — board-centric exports (`Task` type passthrough, board-service helpers, serialize/write board utilities, search).\n  - `src/lib/kanban-tasks.ts` — task lifecycle and task-file helpers.\n  - `src/lib/kanban-sync.ts` — sync/pull/push/regenerate/index helpers.\n  - `src/lib/kanban-ai.ts` — AI helpers.\n  - `src/lib/kanban-utilities.ts` — utility exports (`columnKey`, `applyTemplateReplacements`).\n- Update `src/index.ts` if needed to pull from new barrels while preserving API.\n\n## Definition of Done\n- Public API from `lib/kanban.js` remains unchanged (all existing named exports still resolve).\n- New barrel files introduced, `kanban.ts` becomes a thin aggregator delegating to them.\n- Imports remain type-safe and buildable (tsc -b tsconfig.build.json succeeds).\n- Tests/coverage run still passes.\n\n## Requirements\n1. Create focused barrel files grouping related exports as outlined above.\n2. Update `src/lib/kanban.ts` to re-export from those barrels only; no behavioral changes.\n3. Ensure `src/index.ts` continues exporting the same symbols (may continue to import from `./lib/kanban.js`).\n4. Run at least `pnpm --dir ./ test:coverage` or a quicker build to ensure types compile; summarize outcomes.\n\n## Change Log\n- 2026-02-27: Spec drafted for splitting `lib/kanban.ts` into domain barrels while preserving API.",
+          "sourcePath": "/home/err/devel/orgs/octave-commons/promethean/cli/kanban/kanban/kanban-barrel-refactor.md"
+        },
+        {
+          "uuid": "orgs-octave-commons-promethean-cli-kanban-kanban-orgs-octave-commons-promethean-cli-kanban-spec-stryker-mutation-testing-setup-md",
+          "title": "Stryker Mutation Testing Setup",
+          "slug": "stryker-mutation-testing-setup",
+          "status": "incoming",
+          "priority": "P3",
+          "labels": [
+            "specs",
+            "migrated-spec"
+          ],
+          "createdAt": "2026-05-29T04:01:11.008Z",
+          "content": "> Source: `orgs/octave-commons/promethean/cli/kanban/spec/stryker-mutation-testing-setup.md`\n> Migrated-to-kanban: `orgs/octave-commons/promethean/cli/kanban/kanban/stryker-mutation-testing-setup.md`\n\n# Stryker Mutation Testing Setup\n\n## Summary\n\nSuccessfully configured Stryker mutation testing for the kanban package with the following changes:\n\n## Changes Made\n\n### 1. Test Coverage Threshold Reduced to 60%\n- Updated `.c8rc.json` to set coverage thresholds to 60% for branches, functions, lines, and statements\n- Updated watermarks to reflect the new 60% target\n\n### 2. Stryker Installation\n- Added `@stryker-mutator/core` v9.0.1\n- Added `@stryker-mutator/typescript-checker` v9.0.1  \n- Added `@stryker-mutator/tap-runner` v9.0.1 (though not used in final config)\n\n### 3. Stryker Configuration\n- Created `stryker.config.json` with:\n  - Command runner using AVA directly\n  - Mutation patterns for `src/**/*.ts` (excluding test files)\n  - HTML and JSON reporters\n  - 2 concurrent workers\n  - 5 minute timeout\n\n### 4. Package Scripts\n- Added `test:mutation` - Run full mutation testing\n- Added `test:mutation:debug` - Run with debug logging\n- Added `test:mutation:dry` - AVA command for Stryker\n\n### 5. AVA Configuration\n- Created `ava.config.local.mjs` for Stryker-specific test configuration\n- Configured to run built test files from `dist/tests/**/*.test.js`\n- Excluded integration and e2e tests for faster mutation testing\n\n## Usage\n\nRun mutation testing with:\n```bash\npnpm run test:mutation\n```\n\nRun with debug output:\n```bash\npnpm run test:mutation:debug\n```\n\n## Notes\n\n- Initial dry run shows tests are working but some tests are slow\n- Configuration excludes integration/e2e tests for faster mutation analysis\n- TypeScript checker was disabled due to plugin loading issues\n- Reports will be generated in `reports/mutation/` directory\n\n## Files Modified\n\n- `.c8rc.json` - Coverage threshold reduced to 60%\n- `package.json` - Added Stryker dependencies and scripts\n- `stryker.config.json` - New Stryker configuration\n- `ava.config.local.mjs` - New AVA config for mutation testing",
+          "sourcePath": "/home/err/devel/orgs/octave-commons/promethean/cli/kanban/kanban/stryker-mutation-testing-setup.md"
+        },
+        {
+          "uuid": "orgs-octave-commons-promethean-cli-kanban-kanban-orgs-octave-commons-promethean-cli-kanban-spec-test-stability-md",
+          "title": "Test Stability Improvements",
+          "slug": "test-stability-improvements",
+          "status": "incoming",
+          "priority": "P3",
+          "labels": [
+            "specs",
+            "migrated-spec"
+          ],
+          "createdAt": "2026-05-29T04:01:11.007Z",
+          "content": "> Source: `orgs/octave-commons/promethean/cli/kanban/spec/test-stability.md`\n> Migrated-to-kanban: `orgs/octave-commons/promethean/cli/kanban/kanban/test-stability.md`\n\n# Test Stability Improvements\n\n## Context & Findings\n\n- `src/tests/safe-rule-evaluation.test.ts:11-90` builds mock task/board data with the status value `\"open\"`. The runtime validators invoked by `safeEvaluateTransition` (see `src/lib/safe-rule-evaluation.ts:97-170`) only recognize canonical statuses such as `incoming`/`icebox`. As a result, all success-path tests fail validation before the rule evaluation executes, leading to the observed assertions failing.\n- `src/tests/underscore-bug-demo.test.ts:1-59` is an executable script with console logging, not an AVA test (no `import test from 'ava'`). When AVA globbing pulls in every file under `dist/tests/**`, it runs this module and errors with \"No tests found\".\n- `src/tests/helpers/cli-test-utils.ts:1-259` exports helper utilities but similarly lacks any AVA `test` registrations. Because AVA still runs every file beneath `dist/tests/**`, it halts upon loading this helper with the same \"No tests found\" error before the remaining suites complete.\n\n## Requirements / Definition of Done\n\n1. Update the safe-rule evaluation tests to use valid board/task fixtures so the validation layer passes and the tests assert the intended behavior.\n2. Convert `underscore-bug-demo.test.ts` into a proper AVA test (or suite) that programmatically asserts the normalization parity instead of only printing a table.\n3. Ensure `cli-test-utils.ts` registers at least one lightweight AVA test (or is relocated) so AVA no longer treats it as a malformed suite.\n4. Run `pnpm test:coverage` and verify all tests complete without pending/timeout failures.\n5. Keep console noise minimal (remove unnecessary debug logging if touched) and ensure lint/build continue to succeed.\n\n## Phase Plan\n\n### Phase 1 – Validation Fixes\n- Adjust `mockTask`/`mockTaskForBoard`/`mockBoard` fixtures in `safe-rule-evaluation.test.ts` to use `incoming`/`ready` statuses that satisfy the validators.\n- Re-run the safe-rule tests (or targeted subset) to confirm the assertions now exercise the rule evaluator rather than failing validation.\n\n### Phase 2 – Normalize Non-test Files\n- Rewrite `underscore-bug-demo.test.ts` as an actual AVA test: iterate over representative column names and assert `columnKey()` equals the transition rules normalization result. Remove the manual console table.\n- Add a minimal smoke test near the bottom of `cli-test-utils.ts` (e.g., export verification) so AVA registers at least one test when it loads the helper module.\n\n### Phase 3 – Verification\n- Execute `pnpm test:coverage` to ensure the full suite passes (and coverage thresholds met).\n- Capture any additional regressions surfaced during the test run.\n\n### Phase 4 – Documentation & Wrap-up\n- Summarize the changes, update TODO tracking, and prepare for commit once tests succeed.",
+          "sourcePath": "/home/err/devel/orgs/octave-commons/promethean/cli/kanban/kanban/test-stability.md"
+        },
+        {
+          "uuid": "orgs-octave-commons-promethean-cli-kanban-kanban-orgs-octave-commons-promethean-cli-kanban-spec-test-timeouts-md",
+          "title": "Test timeouts and normalization failure (2025-03-10)",
+          "slug": "test-timeouts-and-normalization-failure-2025-03-10",
+          "status": "incoming",
+          "priority": "P3",
+          "labels": [
+            "specs",
+            "migrated-spec"
+          ],
+          "createdAt": "2026-05-29T04:01:11.008Z",
+          "content": "> Source: `orgs/octave-commons/promethean/cli/kanban/spec/test-timeouts.md`\n> Migrated-to-kanban: `orgs/octave-commons/promethean/cli/kanban/kanban/test-timeouts.md`\n\n# Test timeouts and normalization failure (2025-03-10)\n\n## Context\n\n- Command: `pnpm --filter @promethean-os/kanban test:coverage`\n- Outcome: timeouts in three suites plus a deterministic failure in `underscore-bug-demo.test.ts`.\n\n## Skipped suites (temporarily)\n\n- `src/tests/bulk-import-duplication.test.ts`: lines 12-71 and 75-112 stress `createTask` duplicate-handling across columns; repeated filesystem writes and dedupe scans hang under coverage.\n- `src/tests/sync.test.ts`: lines 17-275 exercise `pushToTasks`/`syncBoardAndTasks` end-to-end; full board regeneration and file I/O exceed Ava's timeout in coverage runs.\n- `src/tests/task-duplication-regression.test.ts`: lines 9-293 cover idempotent `createTask` flows and concurrent dedupe; high I/O and repeated normalization calls time out under coverage.\n\n## Failure analysis (non-timeout)\n\n- `src/tests/underscore-bug-demo.test.ts` fails: `normalizeColumnName(' follow-up-tests ')` → `_follow_up_tests_` while `columnKey(' follow-up-tests ')` → `follow_up_tests`.\n- Root cause: `normalizeColumnName` in `src/lib/transition-rules-functional.ts:486-493` lowercases and replaces whitespace/hyphens but never trims or removes trailing counts. `columnKey` (in `src/lib/kanban.ts:62-68`) first passes through `normalizeColumnDisplayName` which trims and strips trailing counts before normalization. Missing trim causes leading/trailing underscores and mismatch for inputs with surrounding spaces/annotations.\n- Likely fix: apply the same pre-normalization as `columnKey` (trim + `stripTrailingCount`) inside `normalizeColumnName`, or reuse `columnKey` directly to keep a single source of truth.\n\n## Definition of done\n\n- Timeouts isolated to the suites above and marked skipped in code with references to this spec.\n- Documented reason for skips and the normalization mismatch root cause.\n- Next engineers have clear pointers to the functions/lines involved and suggested remediation paths.\n\n## Follow-ups\n\n- Align `normalizeColumnName` with `columnKey` (trim + `stripTrailingCount`) to eliminate underscore drift.\n- Profile `createTask` and `syncBoardAndTasks` under coverage; consider reducing redundant directory scans and task persistence calls in duplicate/regen paths or increasing Ava timeout only for these heavy suites.\n- Re-enable skipped tests after performance fix or targeted timeout configuration.\n\n## Related issues/PRs\n\n- None found in repo at time of writing.",
+          "sourcePath": "/home/err/devel/orgs/octave-commons/promethean/cli/kanban/kanban/test-timeouts.md"
+        }
+      ]
+    },
+    {
+      "status": "accepted",
+      "title": "Accepted",
+      "taskCount": 0,
+      "tasks": []
+    },
+    {
+      "status": "breakdown",
+      "title": "Breakdown",
+      "taskCount": 0,
+      "tasks": []
+    },
+    {
+      "status": "blocked",
+      "title": "Blocked",
+      "taskCount": 0,
+      "tasks": []
+    },
+    {
+      "status": "ready",
+      "title": "Ready",
+      "taskCount": 0,
+      "tasks": []
+    },
+    {
+      "status": "todo",
+      "title": "Todo",
+      "taskCount": 0,
+      "tasks": []
+    },
+    {
+      "status": "in_progress",
+      "title": "In Progress",
+      "taskCount": 0,
+      "tasks": []
+    },
+    {
+      "status": "review",
+      "title": "Review",
+      "taskCount": 0,
+      "tasks": []
+    },
+    {
+      "status": "document",
+      "title": "Document",
+      "taskCount": 0,
+      "tasks": []
+    },
+    {
+      "status": "done",
+      "title": "Done",
+      "taskCount": 0,
+      "tasks": []
+    },
+    {
+      "status": "rejected",
+      "title": "Rejected",
+      "taskCount": 0,
+      "tasks": []
+    }
+  ]
+}

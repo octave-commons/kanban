@@ -1,3 +1,17 @@
+---
+uuid: "orgs-octave-commons-promethean-cli-kanban-kanban-orgs-octave-commons-promethean-cli-kanban-spec-stryker-mutation-testing-setup-md"
+title: "Stryker Mutation Testing Setup"
+status: incoming
+priority: P3
+labels: ["specs", "migrated-spec"]
+created_at: "2026-05-29T04:01:11.008Z"
+source: "orgs/octave-commons/promethean/cli/kanban/spec/stryker-mutation-testing-setup.md"
+category: "specs"
+---
+
+> Source: `orgs/octave-commons/promethean/cli/kanban/spec/stryker-mutation-testing-setup.md`
+> Migrated-to-kanban: `orgs/octave-commons/promethean/cli/kanban/kanban/stryker-mutation-testing-setup.md`
+
 # Stryker Mutation Testing Setup
 
 ## Summary

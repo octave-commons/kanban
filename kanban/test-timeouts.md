@@ -1,3 +1,17 @@
+---
+uuid: "orgs-octave-commons-promethean-cli-kanban-kanban-orgs-octave-commons-promethean-cli-kanban-spec-test-timeouts-md"
+title: "Test timeouts and normalization failure (2025-03-10)"
+status: incoming
+priority: P3
+labels: ["specs", "migrated-spec"]
+created_at: "2026-05-29T04:01:11.008Z"
+source: "orgs/octave-commons/promethean/cli/kanban/spec/test-timeouts.md"
+category: "specs"
+---
+
+> Source: `orgs/octave-commons/promethean/cli/kanban/spec/test-timeouts.md`
+> Migrated-to-kanban: `orgs/octave-commons/promethean/cli/kanban/kanban/test-timeouts.md`
+
 # Test timeouts and normalization failure (2025-03-10)
 
 ## Context

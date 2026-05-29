@@ -1,3 +1,17 @@
+---
+uuid: "orgs-octave-commons-promethean-cli-kanban-kanban-orgs-octave-commons-promethean-cli-kanban-spec-coverage-report-regression-md"
+title: "Coverage Report Regression Fix"
+status: incoming
+priority: P3
+labels: ["specs", "migrated-spec"]
+created_at: "2026-05-29T04:01:11.007Z"
+source: "orgs/octave-commons/promethean/cli/kanban/spec/coverage-report-regression.md"
+category: "specs"
+---
+
+> Source: `orgs/octave-commons/promethean/cli/kanban/spec/coverage-report-regression.md`
+> Migrated-to-kanban: `orgs/octave-commons/promethean/cli/kanban/kanban/coverage-report-regression.md`
+
 # Coverage Report Regression Fix
 
 ## Context
